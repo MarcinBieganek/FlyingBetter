@@ -1,0 +1,33 @@
+﻿@model FlyingBetter.Models.FlightSearch.FlightSearchModel
+@{
+    ViewBag.Title = "Flying Better";
+}
+
+@Styles.Render("~/Content/FormValidation.css")
+
+<div class="jumbotron">
+    <h1>Flying Better</h1>
+    <p class="lead">Search flights smart and easy.</p>
+    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+
+<form method="POST">
+    <div>
+        From: @Html.TextBoxFor(m => m.From) @Html.ValidationMessageFor(m => m.From)
+    </div>
+    <div>
+        Two: @Html.TextBoxFor(m => m.To) @Html.ValidationMessageFor(m => m.To)
+    </div>
+    <div>
+        Date: @Html.EditorFor(m => m.Date, new { htmlAttributes = new { min = DateTime.Now.ToString("yyyy-MM-dd") } }) @Html.ValidationMessageFor(m => m.Date)
+    </div>
+    <div>
+        <button>Search</button>
+    </div>
+    @if (!string.IsNullOrEmpty(this.ViewBag.Message))
+    {
+        <div>
+            <span style="color: red">@this.ViewBag.Message</span>
+        </div>
+    }
+</form>

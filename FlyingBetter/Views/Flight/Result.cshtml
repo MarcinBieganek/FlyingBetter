@@ -1,0 +1,17 @@
+﻿@model FlyingBetter.Models.FlightSearch.FlightSearchModel
+@{
+    ViewBag.Title = "Flights Search Result";
+}
+
+<h2>Flight Search Result</h2>
+
+<hr />
+
+<h3>Flight details</h3>
+<p>
+    From: <b>@Model.From</b> <br />
+    To: <b>@Model.To</b> <br />
+    Date: <b>@Model.Date.ToString("d")</b> <br />
+</p>
+
+<hr />
