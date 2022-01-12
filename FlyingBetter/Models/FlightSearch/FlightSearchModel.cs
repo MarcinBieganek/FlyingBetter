@@ -23,18 +23,5 @@ namespace FlyingBetter.Models.FlightSearch
         [Required(ErrorMessage = "Flight date is required")]
         [DataType(DataType.Date, ErrorMessage = "Format is in incorrect format.")]
         public DateTime Date { get; set; }
-
-        [Required(ErrorMessage = "Adults number is required")]
-        [Range(1, 20, ErrorMessage = "Adults number must be between 1 and 20")]
-        public int Adults { get; set; }
-
-        [Required(ErrorMessage = "Children number is required")]
-        [Range(0, 20, ErrorMessage = "Children number must be between 0 and 20")]
-        public int Children { get; set; }
-
-        public FlightSearchModel()
-        {
-            this.Adults = 1;
-        }
     }
 }

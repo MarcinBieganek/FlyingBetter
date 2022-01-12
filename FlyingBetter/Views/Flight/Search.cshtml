@@ -29,16 +29,6 @@
         <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.Date)</label>
     </div>
     <div class="form-group row">
-        <label class="col-sm-1 col-xs-12 control-label">Adults</label>
-        @Html.EditorFor(m => m.Adults, new { htmlAttributes = new { min = 1, max = 20, @class = "col-sm-8 col-xs-12 form-control" } })
-        <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.Adults)</label>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-1 col-xs-12 control-label">Children</label>
-        @Html.EditorFor(m => m.Children, new { htmlAttributes = new { min = 0, max = 20, @class = "col-sm-8 col-xs-12 form-control" } })
-        <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.Children)</label>
-    </div>
-    <div class="form-group row">
         <button type="submit" class="btn btn-primary btn-lg">Search</button>
     </div>
 </form>
