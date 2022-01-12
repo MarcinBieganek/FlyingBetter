@@ -8,12 +8,37 @@
 <hr />
 
 <h3>Flight details</h3>
-<p>
-    From: <b>@Model.From</b> <br />
-    To: <b>@Model.To</b> <br />
-    Date: <b>@Model.Date.ToString("d")</b> <br />
-    Adults: <b>@Model.Adults</b> <br />
-    Children: <b>@Model.Children</b>
-</p>
+<div class="row">
+    <div class="col-xs-1">
+        From:
+    </div>
+    <div class="col-xs-11">
+        <b>@Model.From</b>
+    </div>
+    <div class="col-xs-1">
+        To:
+    </div>
+    <div class="col-xs-11">
+        <b>@Model.To</b>
+    </div>
+    <div class="col-xs-1">
+        Date:
+    </div>
+    <div class="col-xs-11">
+        <b>@Model.Date.ToString("d")</b>
+    </div>
+    <div class="col-xs-1">
+        Adults:
+    </div>
+    <div class="col-xs-11">
+        <b>@Model.Adults</b>
+    </div>
+    <div class="col-xs-1">
+        Children:
+    </div>
+    <div class="col-xs-11">
+        <b>@Model.Children</b>
+    </div>
+</div>
 
 <hr />
