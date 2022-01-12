@@ -32,9 +32,19 @@ namespace FlyingBetter.Models.FlightSearch
         [Range(0, 20, ErrorMessage = "Children number must be between 0 and 20")]
         public int Children { get; set; }
 
+        [Required(ErrorMessage = "Flight type is required")]
+        public string FlightType { get; set; }
+
         public FlightSearchModel()
         {
             this.Adults = 1;
         }
+    }
+
+    public enum FlightTypes
+    {
+        OneWay,
+        RoundTripStandard,
+        RoundTripNonStandard
     }
 }
