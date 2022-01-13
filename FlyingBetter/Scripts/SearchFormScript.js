@@ -1,10 +1,8 @@
 ﻿
-//var flightTypeRadios = document.querySelectorAll('input[type=radio][name="FlightType"]');
-
-function setFlightBackInputsReadonly(value) {
+function setFlightBackInputsReadonly(value, dateValue) {
     document.getElementById("FlightBackFrom").readOnly = value;
     document.getElementById("FlightBackTo").readOnly = value;
-    document.getElementById("FlightBackDate").readOnly = value;
+    document.getElementById("FlightBackDate").readOnly = dateValue;
     document.getElementById("FlightBackAdults").readOnly = value;
     document.getElementById("FlightBackChildren").readOnly = value;
 }
@@ -17,18 +15,50 @@ function clearFlightBackInputs() {
     document.getElementById("FlightBackChildren").value = "0";
 }
 
+function moveValuesToFlightBackInputs() {
+    document.getElementById("FlightBackFrom").value = document.getElementById("To").value;
+    document.getElementById("FlightBackTo").value = document.getElementById("From").value;
+    document.getElementById("FlightBackAdults").value = document.getElementById("Adults").value;
+    document.getElementById("FlightBackChildren").value = document.getElementById("Children").value;
+}
+
+// make changes in form when flight type is selected
 document.getElementsByName("FlightType").forEach(flightTypeRadio =>
     flightTypeRadio.addEventListener('change', () => {
         if (flightTypeRadio.value == "OneWay") {
-            setFlightBackInputsReadonly(true);
+            setFlightBackInputsReadonly(true, true);
             clearFlightBackInputs();
-            alert("Jedna");
         } else if (flightTypeRadio.value == "RoundTripStandard") {
-            setFlightBackInputsReadonly(false);
-            alert("dwie stand");
+            setFlightBackInputsReadonly(true, false);
+            moveValuesToFlightBackInputs();
         } else {
-            setFlightBackInputsReadonly(false);
-            alert("dwie non standard");
+            setFlightBackInputsReadonly(false, false);
+            moveValuesToFlightBackInputs();
         }
     })
 );
+
+// When round trip standard auto update form input value for flight back
+document.getElementById("From").addEventListener('input', () => {
+    if (document.querySelector('input[id="FlightType"]:checked').value == "RoundTripStandard") {
+        document.getElementById("FlightBackTo").value = document.getElementById("From").value;
+    }
+});
+
+document.getElementById("To").addEventListener('input', () => {
+    if (document.querySelector('input[id="FlightType"]:checked').value == "RoundTripStandard") {
+        document.getElementById("FlightBackFrom").value = document.getElementById("To").value;
+    }
+});
+
+document.getElementById("Adults").addEventListener('input', () => {
+    if (document.querySelector('input[id="FlightType"]:checked').value == "RoundTripStandard") {
+        document.getElementById("FlightBackAdults").value = document.getElementById("Adults").value;
+    }
+});
+
+document.getElementById("Children").addEventListener('input', () => {
+    if (document.querySelector('input[id="FlightType"]:checked').value == "RoundTripStandard") {
+        document.getElementById("FlightBackChildren").value = document.getElementById("Children").value;
+    }
+});
