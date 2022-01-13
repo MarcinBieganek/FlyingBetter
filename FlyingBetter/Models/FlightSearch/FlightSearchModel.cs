@@ -22,6 +22,7 @@ namespace FlyingBetter.Models.FlightSearch
 
         [Required(ErrorMessage = "Flight date is required")]
         [DataType(DataType.Date, ErrorMessage = "Format is in incorrect format.")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "Adults number is required")]
@@ -35,9 +36,29 @@ namespace FlyingBetter.Models.FlightSearch
         [Required(ErrorMessage = "Flight type is required")]
         public string FlightType { get; set; }
 
+        [MaxLength(50, ErrorMessage = "Too long.")]
+        [RegularExpression(@"^[a-zA-Z''-'\s]+$", ErrorMessage = "Only letters")]
+        public string FlightBackFrom { get; set; }
+
+        [MaxLength(50, ErrorMessage = "Too long.")]
+        [RegularExpression(@"^[a-zA-Z''-'\s]+$", ErrorMessage = "Only letters")]
+        public string FlightBackTo { get; set; }
+
+        [DataType(DataType.Date, ErrorMessage = "Format is in incorrect format.")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime FlightBackDate { get; set; }
+
+        [Range(0, 20, ErrorMessage = "Adults number must be between 1 and 20")]
+        public int FlightBackAdults { get; set; }
+
+        [Range(0, 20, ErrorMessage = "Children number must be between 0 and 20")]
+        public int FlightBackChildren { get; set; }
+
         public FlightSearchModel()
         {
             this.Adults = 1;
+            this.Date = DateTime.Now;
+            this.FlightBackDate = DateTime.Now;
         }
     }
 
