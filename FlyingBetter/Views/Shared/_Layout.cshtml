@@ -57,7 +57,6 @@
         document.getElementsByName("FlightType").forEach(flightTypeRadio =>
             flightTypeRadio.addEventListener('change', () => {
                 if (flightTypeRadio.value == "OneWay") {
-                    alert("to");
                     document.getElementById("Date").max = "";
                 }
             })

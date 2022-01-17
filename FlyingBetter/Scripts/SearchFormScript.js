@@ -22,6 +22,20 @@ function moveValuesToFlightBackInputs() {
     document.getElementById("FlightBackChildren").value = document.getElementById("Children").value;
 }
 
+document.addEventListener('DOMcontentLoaded', () => {
+    alert("dupa");
+    if (document.querySelector('input[id="FlightType"]:checked').value == "OneWay") {
+        setFlightBackInputsReadonly(true, true);
+        clearFlightBackInputs();
+    } else if (document.querySelector('input[id="FlightType"]:checked').value == "RoundTripStandard") {
+        setFlightBackInputsReadonly(true, false);
+        moveValuesToFlightBackInputs();
+    } else {
+        setFlightBackInputsReadonly(false, false);
+        moveValuesToFlightBackInputs();
+    }
+});
+
 // make changes in form when flight type is selected
 document.getElementsByName("FlightType").forEach(flightTypeRadio =>
     flightTypeRadio.addEventListener('change', () => {
