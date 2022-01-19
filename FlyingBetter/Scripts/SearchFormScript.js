@@ -23,7 +23,6 @@ function moveValuesToFlightBackInputs() {
 }
 
 document.addEventListener('DOMcontentLoaded', () => {
-    alert("dupa");
     if (document.querySelector('input[id="FlightType"]:checked').value == "OneWay") {
         setFlightBackInputsReadonly(true, true);
         clearFlightBackInputs();
