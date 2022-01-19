@@ -1,13 +1,31 @@
 ﻿@model FlyingBetter.Models.FlightSearch.FlightSearchModel
 @{
     ViewBag.Title = "Flights Search Result";
+    string prittyFlighType;
+    if (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString())
+    {
+        prittyFlighType = "One way";
+    }
+    else if (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString())
+    {
+        prittyFlighType = "Round trip standard";
+    }
+    else
+    {
+        prittyFlighType = "Round trip non-standard";
+    }
+    bool roundTrip = ((Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString())
+                      || Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripNonStandard.ToString());
 }
 
 <h2>Flight Search Result</h2>
 
 <hr />
 
-<h3>Flight details</h3>
+<h3>@prittyFlighType flight details</h3>
+
+<hr />
+
 <div class="row">
     <div class="col-xs-2">
         From:
@@ -15,35 +33,37 @@
     <div class="col-xs-10">
         <b>@Model.From</b>
     </div>
+</div>
+<div class="row">
     <div class="col-xs-2">
         To:
     </div>
     <div class="col-xs-10">
         <b>@Model.To</b>
     </div>
+</div>
+<div class="row">
     <div class="col-xs-2">
         Date:
     </div>
     <div class="col-xs-10">
         <b>@Model.Date.ToString("d")</b>
     </div>
+</div>
+<div class="row">
     <div class="col-xs-2">
         Adults:
     </div>
     <div class="col-xs-10">
         <b>@Model.Adults</b>
     </div>
+</div>
+<div class="row">
     <div class="col-xs-2">
         Children:
     </div>
     <div class="col-xs-10">
         <b>@Model.Children</b>
-    </div>
-    <div class="col-xs-2">
-        Flight type:
-    </div>
-    <div class="col-xs-10">
-        <b>@Model.FlightType</b>
     </div>
 </div>
 

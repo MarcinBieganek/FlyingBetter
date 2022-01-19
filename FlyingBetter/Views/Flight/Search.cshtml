@@ -1,10 +1,11 @@
 ﻿@model FlyingBetter.Models.FlightSearch.FlightSearchModel
 @{
     ViewBag.Title = "Flying Better";
-    bool FlightBackReadOnly = (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString()) || (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString());
+    bool FlightBackReadOnly = (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString()) 
+                                || (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString());
     bool FlightBackDateReadOnly = Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString();
 }
-
+    
 @Styles.Render("~/Content/FormValidation.css")
 
 <div class="jumbotron">
