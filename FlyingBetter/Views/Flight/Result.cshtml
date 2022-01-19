@@ -26,45 +26,97 @@
 
 <hr />
 
-<div class="row">
-    <div class="col-xs-2">
-        From:
+<div class="container">
+    <div class="row">
+        <div class="col-xs-2">
+            From:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.From</b>
+        </div>
     </div>
-    <div class="col-xs-10">
-        <b>@Model.From</b>
+    <div class="row">
+        <div class="col-xs-2">
+            To:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.To</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            Date:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.Date.ToString("d")</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            Adults:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.Adults</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            Children:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.Children</b>
+        </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-xs-2">
-        To:
+
+@if (roundTrip)
+{
+    <h3>@prittyFlighType flight back details</h3>
+
+    <hr />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-2">
+                From:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.FlightBackFrom</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                To:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.FlightBackTo</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                Date:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.FlightBackDate.ToString("d")</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                Adults:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.FlightBackAdults</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                Children:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.FlightBackChildren</b>
+            </div>
+        </div>
     </div>
-    <div class="col-xs-10">
-        <b>@Model.To</b>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-2">
-        Date:
-    </div>
-    <div class="col-xs-10">
-        <b>@Model.Date.ToString("d")</b>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-2">
-        Adults:
-    </div>
-    <div class="col-xs-10">
-        <b>@Model.Adults</b>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-2">
-        Children:
-    </div>
-    <div class="col-xs-10">
-        <b>@Model.Children</b>
-    </div>
-</div>
+}
 
 <hr />
