@@ -1,17 +1,8 @@
 ﻿@model FlyingBetter.Models.FlightSearch.FlightSearchModel
 @{
     ViewBag.Title = "Flying Better";
-    bool FlightBackReadOnly = false;
-    bool FlightBackDateReadOnly = false;
-    if ((Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString()) || (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString()))
-    {
-        FlightBackReadOnly = true;
-    }
-    if (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString())
-    {
-        FlightBackDateReadOnly = true;
-    }
-
+    bool FlightBackReadOnly = (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString()) || (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString());
+    bool FlightBackDateReadOnly = Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString();
 }
 
 @Styles.Render("~/Content/FormValidation.css")
