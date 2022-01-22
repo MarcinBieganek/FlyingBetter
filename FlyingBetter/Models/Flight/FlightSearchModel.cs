@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace FlyingBetter.Models.FlightSearch
+namespace FlyingBetter.Models.Flight
 {
     public class FlightSearchModel
     {

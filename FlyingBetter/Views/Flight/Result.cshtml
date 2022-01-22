@@ -1,12 +1,12 @@
-﻿@model FlyingBetter.Models.FlightSearch.FlightSearchModel
+﻿@model FlyingBetter.Models.Flight.FlightSearchResultModel
 @{
     ViewBag.Title = "Flights Search Result";
     string prittyFlighType;
-    if (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString())
+    if (Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString())
     {
         prittyFlighType = "One way";
     }
-    else if (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString())
+    else if (Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripStandard.ToString())
     {
         prittyFlighType = "Round trip standard";
     }
@@ -14,8 +14,8 @@
     {
         prittyFlighType = "Round trip non-standard";
     }
-    bool roundTrip = ((Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString())
-                      || Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripNonStandard.ToString());
+    bool roundTrip = ((Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripStandard.ToString())
+                      || Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripNonStandard.ToString());
 }
 
 <h2>Flight Search Result</h2>
@@ -32,7 +32,7 @@
             From:
         </div>
         <div class="col-xs-10">
-            <b>@Model.From</b>
+            <b>@Model.searchDetails.From</b>
         </div>
     </div>
     <div class="row">
@@ -40,7 +40,7 @@
             To:
         </div>
         <div class="col-xs-10">
-            <b>@Model.To</b>
+            <b>@Model.searchDetails.To</b>
         </div>
     </div>
     <div class="row">
@@ -48,7 +48,7 @@
             Date:
         </div>
         <div class="col-xs-10">
-            <b>@Model.Date.ToString("d")</b>
+            <b>@Model.searchDetails.Date.ToString("d")</b>
         </div>
     </div>
     <div class="row">
@@ -56,7 +56,7 @@
             Adults:
         </div>
         <div class="col-xs-10">
-            <b>@Model.Adults</b>
+            <b>@Model.searchDetails.Adults</b>
         </div>
     </div>
     <div class="row">
@@ -64,7 +64,7 @@
             Children:
         </div>
         <div class="col-xs-10">
-            <b>@Model.Children</b>
+            <b>@Model.searchDetails.Children</b>
         </div>
     </div>
 </div>
@@ -81,7 +81,7 @@
                 From:
             </div>
             <div class="col-xs-10">
-                <b>@Model.FlightBackFrom</b>
+                <b>@Model.searchDetails.FlightBackFrom</b>
             </div>
         </div>
         <div class="row">
@@ -89,7 +89,7 @@
                 To:
             </div>
             <div class="col-xs-10">
-                <b>@Model.FlightBackTo</b>
+                <b>@Model.searchDetails.FlightBackTo</b>
             </div>
         </div>
         <div class="row">
@@ -97,7 +97,7 @@
                 Date:
             </div>
             <div class="col-xs-10">
-                <b>@Model.FlightBackDate.ToString("d")</b>
+                <b>@Model.searchDetails.FlightBackDate.ToString("d")</b>
             </div>
         </div>
         <div class="row">
@@ -105,7 +105,7 @@
                 Adults:
             </div>
             <div class="col-xs-10">
-                <b>@Model.FlightBackAdults</b>
+                <b>@Model.searchDetails.FlightBackAdults</b>
             </div>
         </div>
         <div class="row">
@@ -113,7 +113,7 @@
                 Children:
             </div>
             <div class="col-xs-10">
-                <b>@Model.FlightBackChildren</b>
+                <b>@Model.searchDetails.FlightBackChildren</b>
             </div>
         </div>
     </div>

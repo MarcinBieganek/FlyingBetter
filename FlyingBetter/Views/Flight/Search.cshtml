@@ -1,9 +1,9 @@
-﻿@model FlyingBetter.Models.FlightSearch.FlightSearchModel
+﻿@model FlyingBetter.Models.Flight.FlightSearchModel
 @{
     ViewBag.Title = "Flying Better";
-    bool FlightBackReadOnly = (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString()) 
-                                || (Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard.ToString());
-    bool FlightBackDateReadOnly = Model.FlightType == FlyingBetter.Models.FlightSearch.FlightTypes.OneWay.ToString();
+    bool FlightBackReadOnly = (Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString()) 
+                                || (Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripStandard.ToString());
+    bool FlightBackDateReadOnly = Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString();
 }
     
 @Styles.Render("~/Content/FormValidation.css")
@@ -46,19 +46,19 @@
     <div class="form-group row">
         <div class="form-check col-sm-3 col-sm-offset-1">
             <div class="form-check">
-                @Html.RadioButtonFor(m => m.FlightType, FlyingBetter.Models.FlightSearch.FlightTypes.OneWay, new { @class = "form-check-input", @checked = "checked" })
+                @Html.RadioButtonFor(m => m.FlightType, FlyingBetter.Models.Flight.FlightTypes.OneWay, new { @class = "form-check-input", @checked = "checked" })
                 <label class="form-check-label">
                     One way
                 </label>
             </div>
             <div class="form-check">
-                @Html.RadioButtonFor(m => m.FlightType, FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripStandard, new { @class = "form-check-input" })
+                @Html.RadioButtonFor(m => m.FlightType, FlyingBetter.Models.Flight.FlightTypes.RoundTripStandard, new { @class = "form-check-input" })
                 <label class="form-check-label">
                     Round trip standard
                 </label>
             </div>
             <div class="form-check">
-                @Html.RadioButtonFor(m => m.FlightType, FlyingBetter.Models.FlightSearch.FlightTypes.RoundTripNonStandard, new { @class = "form-check-input" })
+                @Html.RadioButtonFor(m => m.FlightType, FlyingBetter.Models.Flight.FlightTypes.RoundTripNonStandard, new { @class = "form-check-input" })
                 <label class="form-check-label">
                     Round trip non-standard
                 </label>
