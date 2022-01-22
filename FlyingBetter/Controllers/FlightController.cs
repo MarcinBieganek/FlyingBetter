@@ -35,8 +35,7 @@ namespace FlyingBetter.Controllers
 
             FlightApi flightApi = new FlightApi();
 
-            resultModel.fromCode = await flightApi.getCityCode(resultModel.searchDetails.From);
-
+            await flightApi.GetCitiesCodes(resultModel);
 
             return View(resultModel);
         }

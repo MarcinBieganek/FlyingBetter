@@ -121,12 +121,20 @@
 
 <hr />
 
-<h2>
-    @if (Model.fromCode is null)
-    {
-    <p>@Model.searchDetails.From does not have airport!</p>
-    } else
-    {
-    <p>@Model.fromCode</p>
-    }
-</h2>
+@if (Model.success)
+{
+<div>
+    <p>from: @Model.fromCode</p>
+    <p>to: @Model.toCode</p>
+    <p>back from: @Model.FlightBackFromCode</p>
+    <p>back to: @Model.FlightBackToCode</p>
+</div>
+} 
+else
+{
+<div class="alert alert-warning">
+    <h3 class="alert-heading">Something went wrong</h3>
+    <p>@Model.errorDescription</p>
+</div>
+}
+
