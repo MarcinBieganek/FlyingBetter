@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using FlyingBetter.Models.Flight;
+using System.Threading.Tasks;
 
 namespace FlyingBetter.Controllers
 {
@@ -28,10 +29,13 @@ namespace FlyingBetter.Controllers
             return View(model);
         }
 
-        public ActionResult Result(FlightSearchModel model)
+        public async Task<ActionResult> Result(FlightSearchModel model)
         {
             FlightSearchResultModel resultModel = new FlightSearchResultModel(model);
 
+            FlightApi flightApi = new FlightApi();
+
+            resultModel.fromCode = await flightApi.getCityCode(resultModel.searchDetails.From);
 
 
             return View(resultModel);

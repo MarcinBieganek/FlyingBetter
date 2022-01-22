@@ -120,3 +120,13 @@
 }
 
 <hr />
+
+<h2>
+    @if (Model.fromCode is null)
+    {
+    <p>@Model.searchDetails.From does not have airport!</p>
+    } else
+    {
+    <p>@Model.fromCode</p>
+    }
+</h2>
