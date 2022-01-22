@@ -14,8 +14,10 @@ namespace FlyingBetter.Models.Flight
         public FlightSearchModel searchDetails { get; set; }
         public string fromCode { get; set; }
         public string toCode { get; set; }
-        public string FlightBackFromCode { get; set; }
-        public string FlightBackToCode { get; set; }
+        public string flightBackFromCode { get; set; }
+        public string flightBackToCode { get; set; }
+
+        public FlightsResults flightsResults { get; set; }
         public bool success { get; set; }
         public string errorDescription { get; set; }
 
@@ -36,11 +38,13 @@ namespace FlyingBetter.Models.Flight
     {
         private HttpClient client;
         private string autocompleteBaseUri;
+        private string flightsBaseUri;
         
         public FlightApi()
         {
             this.client = new HttpClient();
             this.autocompleteBaseUri = "http://autocomplete.travelpayouts.com/places2";
+            this.flightsBaseUri = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
         }
 
         public async Task<string> getCityCode(string cityName)
@@ -56,11 +60,11 @@ namespace FlyingBetter.Models.Flight
             {
                 if (apiResponse.IsSuccessStatusCode)
                 {
-                    List<AutocompleteResult> autocompleteResult = await apiResponse.Content.ReadFromJsonAsync<List<AutocompleteResult>>();
+                    List<AutocompleteResult> autocompleteResults = await apiResponse.Content.ReadFromJsonAsync<List<AutocompleteResult>>();
 
-                    if (autocompleteResult.Count > 0)
+                    if (autocompleteResults.Count > 0)
                     {
-                        return autocompleteResult[0].code;
+                        return autocompleteResults[0].code;
                     }
                     throw new NoAirportFoundException(cityName);
                 }
@@ -74,24 +78,24 @@ namespace FlyingBetter.Models.Flight
             {
                 model.fromCode = await getCityCode(model.searchDetails.From);
                 model.toCode = await getCityCode(model.searchDetails.To);
-                model.FlightBackFromCode = model.toCode;
-                model.FlightBackToCode = model.fromCode;
+                model.flightBackFromCode = model.toCode;
+                model.flightBackToCode = model.fromCode;
                 if (model.searchDetails.FlightType == FlightTypes.RoundTripNonStandard.ToString())
                 {
                     if (model.searchDetails.FlightBackFrom == model.searchDetails.To)
                     {
-                        model.FlightBackFromCode = model.toCode;
+                        model.flightBackFromCode = model.toCode;
                     } else
                     {
-                        model.FlightBackFromCode = await getCityCode(model.searchDetails.FlightBackFrom);
+                        model.flightBackFromCode = await getCityCode(model.searchDetails.FlightBackFrom);
                     }
                     if (model.searchDetails.FlightBackTo == model.searchDetails.From)
                     {
-                        model.FlightBackToCode = model.fromCode;
+                        model.flightBackToCode = model.fromCode;
                     }
                     else
                     {
-                        model.FlightBackToCode = await getCityCode(model.searchDetails.FlightBackTo);
+                        model.flightBackToCode = await getCityCode(model.searchDetails.FlightBackTo);
                     }
                 }
             } catch (NoAirportFoundException e)
@@ -104,6 +108,28 @@ namespace FlyingBetter.Models.Flight
                 model.success = false;
                 model.errorDescription = "Error occurred, try again in a moment.";
             }
+        }
+
+        public async Task<FlightsResults> getFlights(string fromCode, string toCode, DateTime date)
+        {
+            string queryParams = $"?origin={fromCode}&destination={toCode}&departure_at={date.ToString("yyyy-MM-dd")}&sorting=price&direct=true&currency=pln&limit=20&page=1&one_way=true&token=d7c205222fc0dfdc0a9054f1f5f8a7ea";
+            var apiRequest = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(this.flightsBaseUri + queryParams)
+            };
+
+            using (var apiResponse = await this.client.SendAsync(apiRequest))
+            {
+                if (apiResponse.IsSuccessStatusCode)
+                {
+                    FlightsResults flightsResults = await apiResponse.Content.ReadFromJsonAsync<FlightsResults>();
+
+                    return flightsResults;
+                }
+            }
+
+            return null;
         }
     }
 
@@ -121,6 +147,29 @@ namespace FlyingBetter.Models.Flight
         public List<string> indexx_strings { get; set; }
         public string main_airport_name { get; set; }
         public Dictionary<string, string> cases { get; set; }
+    }
+
+    public class FlightsResults
+    {
+        public bool success { get; set; }
+        public List<FlightsResult> data { get; set; }
+        public string currency { get; set; }
+    }
+
+    public class FlightsResult
+    {
+        public string origin { get; set; }
+        public string destination { get; set; }
+        public string origin_airport { get; set; }
+        public string destination_airport { get; set; }
+        public int price { get; set; }
+        public string airline { get; set; }
+        public string flight_number { get; set; }
+        public string departure_at { get; set; }
+        public int transfers { get; set; }
+        public int return_transfers { get; set; }
+        public int duration { get; set; }
+        public string link { get; set; }
     }
 
     public class NoAirportFoundException : Exception

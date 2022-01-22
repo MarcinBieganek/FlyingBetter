@@ -126,8 +126,13 @@
 <div>
     <p>from: @Model.fromCode</p>
     <p>to: @Model.toCode</p>
-    <p>back from: @Model.FlightBackFromCode</p>
-    <p>back to: @Model.FlightBackToCode</p>
+    <p>back from: @Model.flightBackFromCode</p>
+    <p>back to: @Model.flightBackToCode</p>
+</div>
+<div>
+    <h3>@Model.flightsResults.success</h3>
+    <h3>@Model.flightsResults.data.Count()</h3>
+    <h3>@Model.flightsResults.currency</h3>
 </div>
 } 
 else
