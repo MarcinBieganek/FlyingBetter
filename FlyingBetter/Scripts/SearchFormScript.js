@@ -1,10 +1,11 @@
 ﻿
-function setFlightBackInputsReadonly(value, dateValue) {
+function setFlightBackInputsReadonly(value, dateValue, directValue) {
     document.getElementById("FlightBackFrom").readOnly = value;
     document.getElementById("FlightBackTo").readOnly = value;
     document.getElementById("FlightBackDate").readOnly = dateValue;
     document.getElementById("FlightBackAdults").readOnly = value;
     document.getElementById("FlightBackChildren").readOnly = value;
+    document.getElementById("FlightBackDirect").disabled = directValue;
 }
 
 function clearFlightBackInputs() {
@@ -24,13 +25,13 @@ function moveValuesToFlightBackInputs() {
 
 document.addEventListener('DOMcontentLoaded', () => {
     if (document.querySelector('input[id="FlightType"]:checked').value == "OneWay") {
-        setFlightBackInputsReadonly(true, true);
+        setFlightBackInputsReadonly(true, true, true);
         clearFlightBackInputs();
     } else if (document.querySelector('input[id="FlightType"]:checked').value == "RoundTripStandard") {
-        setFlightBackInputsReadonly(true, false);
+        setFlightBackInputsReadonly(true, false, false);
         moveValuesToFlightBackInputs();
     } else {
-        setFlightBackInputsReadonly(false, false);
+        setFlightBackInputsReadonly(false, false, false);
         moveValuesToFlightBackInputs();
     }
 });
@@ -39,13 +40,13 @@ document.addEventListener('DOMcontentLoaded', () => {
 document.getElementsByName("FlightType").forEach(flightTypeRadio =>
     flightTypeRadio.addEventListener('change', () => {
         if (flightTypeRadio.value == "OneWay") {
-            setFlightBackInputsReadonly(true, true);
+            setFlightBackInputsReadonly(true, true, true);
             clearFlightBackInputs();
         } else if (flightTypeRadio.value == "RoundTripStandard") {
-            setFlightBackInputsReadonly(true, false);
+            setFlightBackInputsReadonly(true, false, false);
             moveValuesToFlightBackInputs();
         } else {
-            setFlightBackInputsReadonly(false, false);
+            setFlightBackInputsReadonly(false, false, false);
             moveValuesToFlightBackInputs();
         }
     })

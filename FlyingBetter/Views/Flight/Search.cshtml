@@ -1,9 +1,10 @@
 ﻿@model FlyingBetter.Models.Flight.FlightSearchModel
 @{
     ViewBag.Title = "Flying Better";
-    bool FlightBackReadOnly = (Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString()) 
+    bool FlightBackReadOnly = (Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString())
                                 || (Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripStandard.ToString());
     bool FlightBackDateReadOnly = Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString();
+    bool FlightBackDirectReadOnly = Model.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString();
 }
     
 @Styles.Render("~/Content/FormValidation.css")
@@ -44,7 +45,7 @@
     </div>
     <div class="form-group row">
         <label class="col-sm-1 col-xs-12 control-label">Direct</label>
-        @Html.CheckBoxFor(m => m.Direct, new { @class = "col-sm-8 col-xs-12 form-control" })
+        @Html.CheckBoxFor(m => m.Direct, new { @class = "col-sm-8 col-xs-12 form-control", @checked = Model.Direct })
         <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.Direct)</label>
     </div>
     <hr />
@@ -101,7 +102,7 @@
     </div>
     <div class="form-group row">
         <label class="col-sm-1 col-xs-12 control-label">Direct</label>
-        @Html.CheckBoxFor(m => m.FlightBackDirect, new { @class = "col-sm-8 col-xs-12 form-control" })
+        @Html.CheckBoxFor(m => m.FlightBackDirect, FlightBackDirectReadOnly ? (object)new { @disabled = FlightBackDirectReadOnly, @class = "col-sm-8 col-xs-12 form-control", @checked = Model.FlightBackDirect } : (object)new { @class = "col-sm-8 col-xs-12 form-control", @checked = Model.FlightBackDirect })
         <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.FlightBackDirect)</label>
     </div>
     <hr />
