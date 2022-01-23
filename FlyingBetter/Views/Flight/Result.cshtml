@@ -123,23 +123,43 @@
 
 @if (Model.success)
 {
-<div>
-    <p>from: @Model.fromCode</p>
-    <p>to: @Model.toCode</p>
-    <p>back from: @Model.flightBackFromCode</p>
-    <p>back to: @Model.flightBackToCode</p>
-</div>
-<div>
-    <h3>@Model.flightsResults.success</h3>
-    <h3>@Model.flightsResults.data.Count()</h3>
-    <h3>@Model.flightsResults.currency</h3>
-</div>
-} 
+    <div>
+        <p>from: @Model.fromCode</p>
+        <p>to: @Model.toCode</p>
+        <p>back from: @Model.flightBackFromCode</p>
+        <p>back to: @Model.flightBackToCode</p>
+    </div>
+    <div>
+        <h3>@Model.flightsResults.success</h3>
+        <h3>@Model.flightsResults.data.Count()</h3>
+        <h3>@Model.flightsResults.currency</h3>
+    </div>
+    if (!(Model.flightsBackResults is null))
+    {
+        <div>
+            <h3>@Model.flightsBackResults.success</h3>
+            <h3>@Model.flightsBackResults.data.Count()</h3>
+            <h3>@Model.flightsBackResults.currency</h3>
+        </div>
+    }
+
+    if (Model.flightsResults.data.Count() == 0)
+    {
+        <div class="alert alert-info">
+            <h3 class="alert-heading">We did not found any flights</h3>
+            <p>Try with diffrent locations and dates.</p>
+        </div>
+    }
+    else
+    {
+       <h3>WYNIKI</h3>
+    }
+}
 else
 {
-<div class="alert alert-warning">
-    <h3 class="alert-heading">Something went wrong</h3>
-    <p>@Model.errorDescription</p>
-</div>
+    <div class="alert alert-warning">
+        <h3 class="alert-heading">Something went wrong</h3>
+        <p>@Model.errorDescription</p>
+    </div>
 }
 

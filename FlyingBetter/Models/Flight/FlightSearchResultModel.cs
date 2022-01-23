@@ -6,6 +6,7 @@ using System.Web;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace FlyingBetter.Models.Flight
 {
@@ -16,8 +17,8 @@ namespace FlyingBetter.Models.Flight
         public string toCode { get; set; }
         public string flightBackFromCode { get; set; }
         public string flightBackToCode { get; set; }
-
         public FlightsResults flightsResults { get; set; }
+        public FlightsResults flightsBackResults { get; set; }
         public bool success { get; set; }
         public string errorDescription { get; set; }
 
@@ -69,15 +70,19 @@ namespace FlyingBetter.Models.Flight
                     throw new NoAirportFoundException(cityName);
                 }
             }        
-            throw new GetCityCodeException();
+            throw new ApiCallException();
         }
 
         public async Task GetCitiesCodes(FlightSearchResultModel model)
         {
             try
             {
-                model.fromCode = await getCityCode(model.searchDetails.From);
-                model.toCode = await getCityCode(model.searchDetails.To);
+                // get first flight cities codes
+                var getCityCodeFrom = getCityCode(model.searchDetails.From);
+                var getCityCodeTo = getCityCode(model.searchDetails.To);
+                model.fromCode = await getCityCodeFrom;
+                model.toCode = await getCityCodeTo;
+                // get flight back cities codes if needed
                 model.flightBackFromCode = model.toCode;
                 model.flightBackToCode = model.fromCode;
                 if (model.searchDetails.FlightType == FlightTypes.RoundTripNonStandard.ToString())
@@ -102,8 +107,7 @@ namespace FlyingBetter.Models.Flight
             {
                 model.success = false;
                 model.errorDescription = $"We did not found airport for {e.Message}.";
-            }
-            catch (GetCityCodeException e)
+            } catch (ApiCallException e)
             {
                 model.success = false;
                 model.errorDescription = "Error occurred, try again in a moment.";
@@ -123,13 +127,29 @@ namespace FlyingBetter.Models.Flight
             {
                 if (apiResponse.IsSuccessStatusCode)
                 {
-                    FlightsResults flightsResults = await apiResponse.Content.ReadFromJsonAsync<FlightsResults>();
-
-                    return flightsResults;
+                    return await apiResponse.Content.ReadFromJsonAsync<FlightsResults>();
                 }
             }
+            throw new ApiCallException();
+        }
 
-            return null;
+        public async Task getNeededFlights(FlightSearchResultModel model)
+        {
+            try
+            {
+                // get first flights
+                Task<FlightsResults> getFlightsTask = getFlights(model.fromCode, model.toCode, model.searchDetails.Date);
+                // get flights back if needed
+                if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
+                {
+                    model.flightsBackResults = await getFlights(model.flightBackFromCode, model.flightBackToCode, model.searchDetails.FlightBackDate);
+                }
+                model.flightsResults = await getFlightsTask;
+            } catch(ApiCallException e)
+            {
+                model.success = false;
+                model.errorDescription = "Error occurred, try again in a moment.";
+            }
         }
     }
 
@@ -178,7 +198,7 @@ namespace FlyingBetter.Models.Flight
         {
         }
     }
-    public class GetCityCodeException : Exception
+    public class ApiCallException : Exception
     {
     }
 }
