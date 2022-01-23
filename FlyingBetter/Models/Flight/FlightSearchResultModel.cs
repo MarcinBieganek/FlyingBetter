@@ -185,7 +185,7 @@ namespace FlyingBetter.Models.Flight
         public int price { get; set; }
         public string airline { get; set; }
         public string flight_number { get; set; }
-        public string departure_at { get; set; }
+        public DateTime departure_at { get; set; }
         public int transfers { get; set; }
         public int return_transfers { get; set; }
         public int duration { get; set; }
