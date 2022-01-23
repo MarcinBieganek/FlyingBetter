@@ -22,7 +22,6 @@ namespace FlyingBetter.Controllers
         {
             if (this.ModelState.IsValid)
             {
-                
                 return RedirectToAction("Result", model);
             }
  
@@ -32,14 +31,20 @@ namespace FlyingBetter.Controllers
         public async Task<ActionResult> Result(FlightSearchModel model)
         {
             FlightSearchResultModel resultModel = new FlightSearchResultModel(model);
-
             FlightApi flightApi = new FlightApi();
 
             await flightApi.GetCitiesCodes(resultModel);
+            await flightApi.GetNeededFlights(resultModel);
 
-            await flightApi.getNeededFlights(resultModel);
-
-            //resultModel.flightsResults = await flightApi.getFlights(resultModel.fromCode, resultModel.toCode, resultModel.searchDetails.Date);
+            // if did not found any flight at given dates try nearest dates
+            if (resultModel.flightsResults.data.Count() == 0)
+            {
+                await flightApi.GetNeededFlightsAtNearestDates(resultModel);
+            }
+            if (!(resultModel.flightsBackResults is null) && resultModel.flightsBackResults.data.Count() == 0)
+            {
+                await flightApi.GetNeededFlightsBackAtNearestDates(resultModel);
+            }
 
             return View(resultModel);
         }

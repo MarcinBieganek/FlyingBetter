@@ -18,9 +18,6 @@
                       || Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripNonStandard.ToString());
 }
 
-<h1>@Model.searchDetails.Direct</h1>
-<h1>@Model.searchDetails.FlightBackDirect</h1>
-
 <h2>Flight Search Result</h2>
 
 <hr />
@@ -76,6 +73,14 @@
 
 @if (Model.success)
 {
+    if (Model.flightsNearestDayChecked)
+    {
+        <div class="alert alert-info">
+            <h3 class="alert-heading">We did not found any flights at given dates</h3>
+            <p>We tried searching at nearest dates</p>
+        </div>
+    }
+
     if (Model.flightsResults.data.Count() == 0)
     {
         <div class="alert alert-info">
@@ -185,23 +190,11 @@
 
     if (Model.success)
     {
-        <div>
-            <p>from: @Model.fromCode</p>
-            <p>to: @Model.toCode</p>
-            <p>back from: @Model.flightBackFromCode</p>
-            <p>back to: @Model.flightBackToCode</p>
-        </div>
-        <div>
-            <h3>@Model.flightsResults.success</h3>
-            <h3>@Model.flightsResults.data.Count()</h3>
-            <h3>@Model.flightsResults.currency</h3>
-        </div>
-        if (!(Model.flightsBackResults is null))
+        if (Model.flightsBackNearestDayChecked)
         {
-            <div>
-                <h3>@Model.flightsBackResults.success</h3>
-                <h3>@Model.flightsBackResults.data.Count()</h3>
-                <h3>@Model.flightsBackResults.currency</h3>
+            <div class="alert alert-info">
+                <h3 class="alert-heading">We did not found any flights at given dates</h3>
+                <p>We tried searching at nearest dates</p>
             </div>
         }
 
@@ -211,7 +204,8 @@
                 <h3 class="alert-heading">We did not found any flights</h3>
                 <p>Try with diffrent locations and/or dates.</p>
             </div>
-        } else
+        }
+        else
         {
             foreach (var flightBackResult in Model.flightsBackResults.data)
             {
@@ -222,7 +216,7 @@
                     <div class="panel-heading text-center">
                         <h2>
                             @flightBackResult.origin_airport
-                            <span class="glyphicon glglyphicon glyphicon-arrow-right"></span>
+                            <span class="glyphicon glyphicon glyphicon-arrow-right"></span>
                             @flightBackResult.destination_airport
                         </h2>
                     </div>
@@ -239,7 +233,8 @@
                                 @if (flightBackResult.transfers == 0)
                                 {
                                     <h4><b>Direct</b></h4>
-                                } else
+                                }
+                                else
                                 {
                                     <h4>Transfers: <b>@flightBackResult.transfers</b></h4>
                                 }
@@ -260,7 +255,7 @@
     <hr />
 }
 
-@if(!Model.success)
+@if (!Model.success)
 {
     <div class="alert alert-warning">
         <h3 class="alert-heading">Something went wrong</h3>
