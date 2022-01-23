@@ -33,6 +33,9 @@ namespace FlyingBetter.Models.Flight
         [Range(0, 20, ErrorMessage = "Children number must be between 0 and 20")]
         public int Children { get; set; }
 
+        [Required(ErrorMessage = "Direct or indirect indication is required")]
+        public bool Direct { get; set; }
+
         [Required(ErrorMessage = "Flight type is required")]
         public string FlightType { get; set; }
 
@@ -60,6 +63,9 @@ namespace FlyingBetter.Models.Flight
         [Required(ErrorMessage = "Children number is required")]
         [Range(0, 20, ErrorMessage = "Children number must be between 0 and 20")]
         public int FlightBackChildren { get; set; }
+
+        [Required(ErrorMessage = "Direct or indirect indication is required")]
+        public bool FlightBackDirect { get; set; }
 
         public FlightSearchModel()
         {

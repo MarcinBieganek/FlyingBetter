@@ -114,9 +114,9 @@ namespace FlyingBetter.Models.Flight
             }
         }
 
-        public async Task<FlightsResults> getFlights(string fromCode, string toCode, DateTime date)
+        public async Task<FlightsResults> getFlights(string fromCode, string toCode, DateTime date, bool direct)
         {
-            string queryParams = $"?origin={fromCode}&destination={toCode}&departure_at={date.ToString("yyyy-MM-dd")}&sorting=price&direct=true&currency=pln&limit=20&page=1&one_way=true&token=d7c205222fc0dfdc0a9054f1f5f8a7ea";
+            string queryParams = $"?origin={fromCode}&destination={toCode}&departure_at={date.ToString("yyyy-MM-dd")}&sorting=price&direct={direct.ToString().ToLower()}&currency=pln&limit=20&page=1&one_way=true&token=d7c205222fc0dfdc0a9054f1f5f8a7ea";
             var apiRequest = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
@@ -138,11 +138,11 @@ namespace FlyingBetter.Models.Flight
             try
             {
                 // get first flights
-                Task<FlightsResults> getFlightsTask = getFlights(model.fromCode, model.toCode, model.searchDetails.Date);
+                Task<FlightsResults> getFlightsTask = getFlights(model.fromCode, model.toCode, model.searchDetails.Date, model.searchDetails.Direct);
                 // get flights back if needed
                 if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
                 {
-                    model.flightsBackResults = await getFlights(model.flightBackFromCode, model.flightBackToCode, model.searchDetails.FlightBackDate);
+                    model.flightsBackResults = await getFlights(model.flightBackFromCode, model.flightBackToCode, model.searchDetails.FlightBackDate, model.searchDetails.FlightBackDirect);
                 }
                 model.flightsResults = await getFlightsTask;
             } catch(ApiCallException e)
