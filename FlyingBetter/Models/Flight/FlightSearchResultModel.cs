@@ -7,18 +7,25 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
+using CsvHelper;
+using System.Globalization;
 
 namespace FlyingBetter.Models.Flight
 {
     public class FlightSearchResultModel
     {
         public FlightSearchModel searchDetails { get; set; }
-        public string fromCode { get; set; }
-        public string toCode { get; set; }
-        public string flightBackFromCode { get; set; }
-        public string flightBackToCode { get; set; }
-        public FlightsResults flightsResults { get; set; }
-        public FlightsResults flightsBackResults { get; set; }
+        public AutocompleteResult fromInfo { get; set; }
+        public AutocompleteResult toInfo { get; set; }
+        public AutocompleteResult flightBackFromInfo { get; set; }
+        public AutocompleteResult flightBackToInfo { get; set; }
+        public List<string> fromCodes { get; set; }
+        public List<string> toCodes { get; set; }
+        public List<string> flightBackFromCodes { get; set; }
+        public List<string> flightBackToCodes { get; set; }
+        public List<FlightsResults> flightsResults { get; set; }
+        public List<FlightsResults> flightsBackResults { get; set; }
         public bool flightsNearestDayChecked { get; set; }
         public bool flightsBackNearestDayChecked { get; set; }
         public bool success { get; set; }
@@ -29,6 +36,12 @@ namespace FlyingBetter.Models.Flight
             this.searchDetails = new FlightSearchModel();
             this.success = true;
             this.flightsNearestDayChecked = false;
+            this.fromCodes = new List<string>();
+            this.toCodes = new List<string>();
+            this.flightBackFromCodes = new List<string>();
+            this.flightBackToCodes = new List<string>();
+            this.flightsResults = new List<FlightsResults>();
+            this.flightsBackResults = new List<FlightsResults>();
         }
 
         public FlightSearchResultModel(FlightSearchModel flightSearchModel)
@@ -36,6 +49,12 @@ namespace FlyingBetter.Models.Flight
             this.searchDetails = flightSearchModel;
             this.success = true;
             this.flightsNearestDayChecked = false;
+            this.fromCodes = new List<string>();
+            this.toCodes = new List<string>();
+            this.flightBackFromCodes = new List<string>();
+            this.flightBackToCodes = new List<string>();
+            this.flightsResults = new List<FlightsResults>();
+            this.flightsBackResults = new List<FlightsResults>();
         }
     }
 
@@ -44,7 +63,7 @@ namespace FlyingBetter.Models.Flight
         private HttpClient client;
         private string autocompleteBaseUri;
         private string flightsBaseUri;
-        
+
         public FlightApi()
         {
             this.client = new HttpClient();
@@ -52,7 +71,7 @@ namespace FlyingBetter.Models.Flight
             this.flightsBaseUri = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
         }
 
-        public async Task<string> GetCityCode(string cityName)
+        public async Task<AutocompleteResult> GetCityInfo(string cityName)
         {
             string queryParams = $"?term={cityName}&locale=en&types[]=city";
             var apiRequest = new HttpRequestMessage
@@ -69,49 +88,50 @@ namespace FlyingBetter.Models.Flight
 
                     if (autocompleteResults.Count > 0)
                     {
-                        return autocompleteResults[0].code;
+                        return autocompleteResults[0];
                     }
                     throw new NoAirportFoundException(cityName);
                 }
-            }        
+            }
             throw new ApiCallException();
         }
 
-        public async Task GetCitiesCodes(FlightSearchResultModel model)
+        public async Task GetCitiesInfo(FlightSearchResultModel model)
         {
             try
             {
-                // get first flight cities codes
-                var getCityCodeFrom = GetCityCode(model.searchDetails.From);
-                var getCityCodeTo = GetCityCode(model.searchDetails.To);
-                model.fromCode = await getCityCodeFrom;
-                model.toCode = await getCityCodeTo;
-                // get flight back cities codes if needed
-                model.flightBackFromCode = model.toCode;
-                model.flightBackToCode = model.fromCode;
+                // get first flight cities info and codes
+                var getCityInfoFrom = GetCityInfo(model.searchDetails.From);
+                var getCityInfoTo = GetCityInfo(model.searchDetails.To);
+                model.fromInfo = await getCityInfoFrom;
+                model.fromCodes.Add(model.fromInfo.code);
+                model.toInfo = await getCityInfoTo;
+                model.toCodes.Add(model.toInfo.code);
+                // get flight back cities info and codes if needed
+                model.flightBackFromInfo = model.fromInfo;
+                model.flightBackToInfo = model.toInfo;
+                model.flightBackFromCodes.Add(model.flightBackFromInfo.code);
+                model.flightBackToCodes.Add(model.flightBackToInfo.code);
                 if (model.searchDetails.FlightType == FlightTypes.RoundTripNonStandard.ToString())
                 {
-                    if (model.searchDetails.FlightBackFrom == model.searchDetails.To)
+                    if (model.searchDetails.FlightBackFrom != model.searchDetails.To)
                     {
-                        model.flightBackFromCode = model.toCode;
-                    } else
-                    {
-                        model.flightBackFromCode = await GetCityCode(model.searchDetails.FlightBackFrom);
+                        model.flightBackFromInfo = await GetCityInfo(model.searchDetails.FlightBackFrom);
+                        model.flightBackFromCodes[0] = model.flightBackFromInfo.code;
                     }
-                    if (model.searchDetails.FlightBackTo == model.searchDetails.From)
+                    if (model.searchDetails.FlightBackTo != model.searchDetails.From)
                     {
-                        model.flightBackToCode = model.fromCode;
-                    }
-                    else
-                    {
-                        model.flightBackToCode = await GetCityCode(model.searchDetails.FlightBackTo);
+                        model.flightBackToInfo = await GetCityInfo(model.searchDetails.FlightBackTo);
+                        model.flightBackToCodes[0] = model.flightBackToInfo.code;
                     }
                 }
-            } catch (NoAirportFoundException e)
+            }
+            catch (NoAirportFoundException e)
             {
                 model.success = false;
                 model.errorDescription = $"We did not found airport for {e.Message}.";
-            } catch (ApiCallException e)
+            }
+            catch (ApiCallException e)
             {
                 model.success = false;
                 model.errorDescription = "Error occurred, try again in a moment.";
@@ -142,35 +162,13 @@ namespace FlyingBetter.Models.Flight
             try
             {
                 // get first flights
-                Task<FlightsResults> getFlightsTask = GetFlights(model.fromCode, model.toCode, model.searchDetails.Date, model.searchDetails.Direct);
+                Task<FlightsResults> getFlightsTask = GetFlights(model.fromCodes[0], model.toCodes[0], model.searchDetails.Date, model.searchDetails.Direct);
                 // get flights back if needed
                 if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
                 {
-                    model.flightsBackResults = await GetFlights(model.flightBackFromCode, model.flightBackToCode, model.searchDetails.FlightBackDate, model.searchDetails.FlightBackDirect);
+                    model.flightsBackResults.Add(await GetFlights(model.flightBackFromCodes[0], model.flightBackToCodes[0], model.searchDetails.FlightBackDate, model.searchDetails.FlightBackDirect));
                 }
-                model.flightsResults = await getFlightsTask;
-            } catch(ApiCallException e)
-            {
-                model.success = false;
-                model.errorDescription = "Error occurred, try again in a moment.";
-            }
-        }
-
-        public async Task GetNeededFlightsAtNearestDates(FlightSearchResultModel model)
-        {
-            List<double> daysDiffs = new List<double>() { -1.0, 0.0, 1.0 };
-            try
-            {
-                foreach(var daysDiffOne in daysDiffs)
-                {
-                    // prepare new date
-                    DateTime newDate = model.searchDetails.Date.AddDays(daysDiffOne);
-                    // get first flights
-                    FlightsResults flightsResults = await GetFlights(model.fromCode, model.toCode, newDate, model.searchDetails.Direct);
-
-                    model.flightsResults.data.AddRange(flightsResults.data);
-                }
-                model.flightsNearestDayChecked = true;
+                model.flightsResults.Add(await getFlightsTask);
             }
             catch (ApiCallException e)
             {
@@ -179,25 +177,62 @@ namespace FlyingBetter.Models.Flight
             }
         }
 
-        public async Task GetNeededFlightsBackAtNearestDates(FlightSearchResultModel model)
+        public async Task GetNeededFlightsNearest(FlightSearchResultModel model, int daysRangeRadius)
         {
-            List<double> daysDiffs = new List<double>() { -1.0, 0.0, 1.0 };
+            List<int> daysDiffs = Enumerable.Range(-daysRangeRadius, (daysRangeRadius * 2) + 1).ToList();
             try
             {
-                foreach (var daysDiff in daysDiffs)
+                // get first flights
+                List<Task<FlightsResults>> getFlightsTasks = new List<Task<FlightsResults>>();
+                foreach (var fromCode in model.fromCodes)
                 {
-                    if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
+                    foreach (var toCode in model.toCodes)
                     {
-                        // prepare new date for flights back
-                        DateTime flightBackNewDate = model.searchDetails.FlightBackDate.AddDays(daysDiff);
-                        if (model.searchDetails.Date <= flightBackNewDate)
+                        foreach (var daysDiffOne in daysDiffs)
                         {
-                            FlightsResults flightsBackResults = await GetFlights(model.flightBackFromCode, model.flightBackToCode, flightBackNewDate, model.searchDetails.FlightBackDirect);
-                            model.flightsBackResults.data.AddRange(flightsBackResults.data);
+                            // prepare new date
+                            DateTime newDate = model.searchDetails.Date.AddDays((double) daysDiffOne);
+                            // check if new date is okay
+                            if (DateTime.Today <= newDate &&
+                                (model.searchDetails.FlightType == FlightTypes.OneWay.ToString() ||
+                                 newDate <= model.searchDetails.FlightBackDate))
+                            {
+                                getFlightsTasks.Add(GetFlights(fromCode, toCode, newDate, model.searchDetails.Direct));
+                            }
                         }
                     }
                 }
-                model.flightsBackNearestDayChecked = true;
+                // get flights back if needed
+                List<Task<FlightsResults>> getFlightsBackTasks = new List<Task<FlightsResults>>();
+                if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
+                {
+                    foreach (var fromCode in model.flightBackFromCodes)
+                    {
+                        foreach (var toCode in model.flightBackToCodes)
+                        {
+                            foreach (var daysDiffOne in daysDiffs)
+                            {
+                                // prepare new date
+                                DateTime newDate = model.searchDetails.FlightBackDate.AddDays((double) daysDiffOne);
+                                // check if new date is okay
+                                if (model.searchDetails.Date <= newDate)
+                                {
+                                    getFlightsBackTasks.Add(GetFlights(fromCode, toCode, newDate, model.searchDetails.Direct));
+                                }
+                            }
+                        }
+                    }
+                    // wait for the async results
+                    for (int i = 0; i < model.flightBackFromCodes.Count() * model.flightBackToCodes.Count() * daysDiffs.Count(); i++)
+                    {
+                        model.flightsBackResults.Add(await getFlightsBackTasks[i]);
+                    }
+                }
+                // wait for the async results
+                for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count() * daysDiffs.Count(); i++)
+                {
+                    model.flightsResults.Add(await getFlightsTasks[i]);
+                }
             }
             catch (ApiCallException e)
             {
@@ -205,6 +240,103 @@ namespace FlyingBetter.Models.Flight
                 model.errorDescription = "Error occurred, try again in a moment.";
             }
         }
+    }
+
+    public class Airports
+    {
+        public static List<Airport> airports;
+
+        static Airports()
+        {
+            using (var airportsReader = new StreamReader(Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "App_Data/airports.csv")))
+            using (var airportsCsvReader = new CsvReader(airportsReader, CultureInfo.InvariantCulture))
+            {
+                airports = airportsCsvReader.GetRecords<Airport>().ToList();
+            }
+        }
+
+        private double DegreesToRadians(double degrees)
+        {
+            return (degrees * Math.PI) / 180.0;
+        }
+
+        private double GeoDistance(double latX, double lonX, double latY, double lonY)
+        {
+            double latXRad = DegreesToRadians(latX);
+            double lonXRad = DegreesToRadians(lonX);
+            double latYRad = DegreesToRadians(latY);
+            double lonYRad = DegreesToRadians(lonY);
+
+            // the haversine formula
+            return 2.0 * 6371.0 *
+                    Math.Asin(
+                        Math.Sqrt(
+                            Math.Pow(
+                                Math.Sin((latYRad - latXRad) / 2),
+                                2
+                            ) +
+                            (Math.Cos(latXRad) *
+                             Math.Cos(latYRad) *
+                             Math.Pow(
+                                Math.Sin((lonYRad - lonXRad) / 2),
+                                2
+                             ))
+                        )
+                    );
+        }
+
+        public List<string> GetNearestAirportsCodes(double lat, double lon, double dist)
+        {
+            return (from airport in airports
+                    where (airport.type == "large_airport" || airport.type == "medium_airport") && (airport.iata_code != "") && (airport.scheduled_service == "yes")
+                    where GeoDistance(airport.latitude_deg, airport.longitude_deg, lat, lon) < dist
+                    orderby GeoDistance(airport.latitude_deg, airport.longitude_deg, lat, lon)
+                    select airport.iata_code).Take<string>(5).ToList();
+        }
+
+        public void AddNearestAirportsCodes(FlightSearchResultModel model)
+        {
+            model.fromCodes.AddRange(GetNearestAirportsCodes(model.fromInfo.coordinates["lat"], model.fromInfo.coordinates["lon"], 200.0));
+            model.fromCodes = model.fromCodes.Distinct().ToList();
+            model.toCodes.AddRange(GetNearestAirportsCodes(model.toInfo.coordinates["lat"], model.toInfo.coordinates["lon"], 200.0));
+            model.toCodes = model.toCodes.Distinct().ToList();
+
+            foreach (var m in model.fromCodes)
+                Debug.WriteLine(m);
+
+            foreach (var m in model.toCodes)
+                Debug.WriteLine(m);
+
+            if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
+            {
+                model.flightBackFromCodes.AddRange(GetNearestAirportsCodes(model.flightBackFromInfo.coordinates["lat"], model.flightBackFromInfo.coordinates["lon"], 200.0));
+                model.flightBackFromCodes = model.flightBackFromCodes.Distinct().ToList();
+                model.flightBackToCodes.AddRange(GetNearestAirportsCodes(model.flightBackToInfo.coordinates["lat"], model.flightBackToInfo.coordinates["lon"], 200.0));
+                model.flightBackToCodes = model.flightBackToCodes.Distinct().ToList();
+            }
+        }
+    }
+
+    public class Airport
+    {
+        public int id { get; set; }
+        public string ident { get; set; }
+        public string type { get; set; }
+        public string name { get; set; }
+        public double latitude_deg { get; set; }
+        public double longitude_deg { get; set; }
+        public string elevation_ft { get; set; }
+        public string continent { get; set; }
+        public string iso_country { get; set; }
+        public string iso_region { get; set; }
+        public string municipality { get; set; }
+        public string scheduled_service { get; set; }
+        public string gps_code { get; set; }
+        public string iata_code { get; set; }
+        public string local_code { get; set; }
+        public string home_link { get; set; }
+        public string wikipedia_link { get; set; }
+        public string keywords { get; set; }
     }
 
     public class AutocompleteResult

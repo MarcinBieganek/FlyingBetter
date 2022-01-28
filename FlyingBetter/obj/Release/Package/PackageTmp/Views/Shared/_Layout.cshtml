@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="icon" href="@Url.Content("~/content/favicon.ico")" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Flying Better", "Search", "Flight", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Flight Search", "Search", "Flight")</li>
+                    <li>@Html.ActionLink("Help", "Help", "Home")</li>
+                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Flying Better</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
+
+    <script type='text/javascript'>
+        // script that sets min value for Flight Back Date to be after Date
+        document.getElementById("Date").addEventListener('input', () => {
+            if (document.getElementById("FlightBackDate").value < document.getElementById("Date").value) {
+                document.getElementById("FlightBackDate").value = document.getElementById("Date").value;
+            }
+            document.getElementById("FlightBackDate").min = document.getElementById("Date").value;
+        });
+        // script that set max value for Date to be before Flight Back Date
+        document.getElementById("FlightBackDate").addEventListener('input', () => {
+            document.getElementById("Date").max = document.getElementById("FlightBackDate").value;
+        });
+        // script that clears max value for Date when One Way Flight selected
+        document.getElementsByName("FlightType").forEach(flightTypeRadio =>
+            flightTypeRadio.addEventListener('change', () => {
+                if (flightTypeRadio.value == "OneWay") {
+                    document.getElementById("Date").max = "";
+                }
+            })
+        );
+    </script>
+
+    @Scripts.Render("~/Scripts/SearchFormScript.js")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,265 @@
+﻿@model FlyingBetter.Models.Flight.FlightSearchResultModel
+@{
+    ViewBag.Title = "Flights Search Result";
+    string prittyFlighType;
+    if (Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.OneWay.ToString())
+    {
+        prittyFlighType = "One way";
+    }
+    else if (Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripStandard.ToString())
+    {
+        prittyFlighType = "Round trip standard";
+    }
+    else
+    {
+        prittyFlighType = "Round trip non-standard";
+    }
+    bool roundTrip = ((Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripStandard.ToString())
+                      || Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripNonStandard.ToString());
+}
+
+<h2>Flight Search Result</h2>
+
+<hr />
+
+<h3>@prittyFlighType flight details</h3>
+
+<hr />
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-2">
+            From:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.searchDetails.From</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            To:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.searchDetails.To</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            Date:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.searchDetails.Date.ToString("d")</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            Adults:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.searchDetails.Adults</b>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2">
+            Children:
+        </div>
+        <div class="col-xs-10">
+            <b>@Model.searchDetails.Children</b>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+@if (Model.success)
+{
+    if (Model.flightsNearestDayChecked)
+    {
+        <div class="alert alert-info">
+            <h3 class="alert-heading">We did not found any flights at given dates</h3>
+            <p>We tried searching at nearest dates</p>
+        </div>
+    }
+
+    if (Model.flightsResults.data.Count() == 0)
+    {
+        <div class="alert alert-info">
+            <h3 class="alert-heading">We did not found any flights</h3>
+            <p>Try with diffrent locations and/or dates.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var flightResult in Model.flightsResults.data)
+        {
+            string link = "https://www.aviasales.com" + flightResult.link.Replace("rub", Model.flightsResults.currency);
+            string imgLink = "http://pics.avs.io/200/200/" + flightResult.airline + ".png";
+
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>
+                        @flightResult.origin_airport
+                        <span class="glyphicon glglyphicon glyphicon-arrow-right"></span>
+                        @flightResult.destination_airport
+                    </h2>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
+                        </div>
+                        <div class="col-sm-6">
+                            <h4>Price: <b>@flightResult.price</b> @Model.flightsResults.currency</h4>
+                            <h4>Start: <b>@flightResult.departure_at</b></h4>
+                            <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightResult.duration)</b></h4>
+                            <h4>End: <b>@flightResult.departure_at.Add(TimeSpan.FromMinutes((double)flightResult.duration))</b></h4>
+                            @if (flightResult.transfers == 0)
+                            {
+                                <h4><b>Direct</b></h4>
+                            }
+                            else
+                            {
+                                <h4>Transfers: <b>@flightResult.transfers</b></h4>
+                            }
+                            <h4>Flight: <b>@flightResult.airline@flightResult.flight_number</b></h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <a href="@link" class="btn btn-primary btn-lg btn-block" target="_blank" rel="noopener noreferrer">Check</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}
+
+@if (roundTrip)
+{
+    <hr />
+
+    <h3>@prittyFlighType flight back details</h3>
+
+    <hr />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-2">
+                From:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.searchDetails.FlightBackFrom</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                To:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.searchDetails.FlightBackTo</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                Date:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.searchDetails.FlightBackDate.ToString("d")</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                Adults:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.searchDetails.FlightBackAdults</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2">
+                Children:
+            </div>
+            <div class="col-xs-10">
+                <b>@Model.searchDetails.FlightBackChildren</b>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    if (Model.success)
+    {
+        if (Model.flightsBackNearestDayChecked)
+        {
+            <div class="alert alert-info">
+                <h3 class="alert-heading">We did not found any flights at given dates</h3>
+                <p>We tried searching at nearest dates</p>
+            </div>
+        }
+
+        if (Model.flightsBackResults.data.Count() == 0)
+        {
+            <div class="alert alert-info">
+                <h3 class="alert-heading">We did not found any flights</h3>
+                <p>Try with diffrent locations and/or dates.</p>
+            </div>
+        }
+        else
+        {
+            foreach (var flightBackResult in Model.flightsBackResults.data)
+            {
+                string link = "https://www.aviasales.com" + flightBackResult.link.Replace("rub", Model.flightsBackResults.currency);
+                string imgLink = "http://pics.avs.io/200/200/" + flightBackResult.airline + ".png";
+
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">
+                        <h2>
+                            @flightBackResult.origin_airport
+                            <span class="glyphicon glyphicon glyphicon-arrow-right"></span>
+                            @flightBackResult.destination_airport
+                        </h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
+                            </div>
+                            <div class="col-sm-6">
+                                <h4>Price: <b>@flightBackResult.price</b> @Model.flightsBackResults.currency</h4>
+                                <h4>Start: <b>@flightBackResult.departure_at</b></h4>
+                                <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightBackResult.duration)</b></h4>
+                                <h4>End: <b>@flightBackResult.departure_at.Add(TimeSpan.FromMinutes((double)flightBackResult.duration))</b></h4>
+                                @if (flightBackResult.transfers == 0)
+                                {
+                                    <h4><b>Direct</b></h4>
+                                }
+                                else
+                                {
+                                    <h4>Transfers: <b>@flightBackResult.transfers</b></h4>
+                                }
+                                <h4>Flight: <b>@flightBackResult.airline@flightBackResult.flight_number</b></h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <a href="@link" class="btn btn-primary btn-lg btn-block" target="_blank" rel="noopener noreferrer">Check</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+
+    <hr />
+}
+
+@if (!Model.success)
+{
+    <div class="alert alert-warning">
+        <h3 class="alert-heading">Something went wrong</h3>
+        <p>@Model.errorDescription</p>
+    </div>
+}
+

@@ -18,6 +18,15 @@
                       || Model.searchDetails.FlightType == FlyingBetter.Models.Flight.FlightTypes.RoundTripNonStandard.ToString());
 }
 
+<h1>@Model.flightsResults.Count()</h1>
+
+@foreach (var f in Model.flightsResults)
+{
+    <div>
+        <h2>@f.data.Count()</h2>
+    </div>
+}
+
 <h2>Flight Search Result</h2>
 
 <hr />
@@ -81,7 +90,7 @@
         </div>
     }
 
-    if (Model.flightsResults.data.Count() == 0)
+    if (Model.flightsResults.TrueForAll(fr => fr.data.Count() == 0))
     {
         <div class="alert alert-info">
             <h3 class="alert-heading">We did not found any flights</h3>
@@ -90,47 +99,50 @@
     }
     else
     {
-        foreach (var flightResult in Model.flightsResults.data)
+        foreach (var flightResults in Model.flightsResults)
         {
-            string link = "https://www.aviasales.com" + flightResult.link.Replace("rub", Model.flightsResults.currency);
-            string imgLink = "http://pics.avs.io/200/200/" + flightResult.airline + ".png";
+            foreach (var flightResult in flightResults.data)
+            {
+                string link = "https://www.aviasales.com" + flightResult.link.Replace("rub", flightResults.currency);
+                string imgLink = "http://pics.avs.io/200/200/" + flightResult.airline + ".png";
 
-            <div class="panel panel-default">
-                <div class="panel-heading text-center">
-                    <h2>
-                        @flightResult.origin_airport
-                        <span class="glyphicon glglyphicon glyphicon-arrow-right"></span>
-                        @flightResult.destination_airport
-                    </h2>
-                </div>
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">
+                        <h2>
+                            @flightResult.origin_airport
+                            <span class="glyphicon glglyphicon glyphicon-arrow-right"></span>
+                            @flightResult.destination_airport
+                        </h2>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
+                            </div>
+                            <div class="col-sm-6">
+                                <h4>Price: <b>@flightResult.price</b> @flightResults.currency</h4>
+                                <h4>Start: <b>@flightResult.departure_at</b></h4>
+                                <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightResult.duration)</b></h4>
+                                <h4>End: <b>@flightResult.departure_at.Add(TimeSpan.FromMinutes((double)flightResult.duration))</b></h4>
+                                @if (flightResult.transfers == 0)
+                                {
+                                    <h4><b>Direct</b></h4>
+                                }
+                                else
+                                {
+                                    <h4>Transfers: <b>@flightResult.transfers</b></h4>
+                                }
+                                <h4>Flight: <b>@flightResult.airline@flightResult.flight_number</b></h4>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <h4>Price: <b>@flightResult.price</b> @Model.flightsResults.currency</h4>
-                            <h4>Start: <b>@flightResult.departure_at</b></h4>
-                            <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightResult.duration)</b></h4>
-                            <h4>End: <b>@flightResult.departure_at.Add(TimeSpan.FromMinutes((double)flightResult.duration))</b></h4>
-                            @if (flightResult.transfers == 0)
-                            {
-                                <h4><b>Direct</b></h4>
-                            }
-                            else
-                            {
-                                <h4>Transfers: <b>@flightResult.transfers</b></h4>
-                            }
-                            <h4>Flight: <b>@flightResult.airline@flightResult.flight_number</b></h4>
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <a href="@link" class="btn btn-primary btn-lg btn-block" target="_blank" rel="noopener noreferrer">Check</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-12 text-center">
-                            <a href="@link" class="btn btn-primary btn-lg btn-block" target="_blank" rel="noopener noreferrer">Check</a>
-                        </div>
-                    </div>
                 </div>
-            </div>
+            }
         }
     }
 }
@@ -198,7 +210,7 @@
             </div>
         }
 
-        if (Model.flightsBackResults.data.Count() == 0)
+        if (Model.flightsBackResults.TrueForAll(fr => fr.data.Count() == 0))
         {
             <div class="alert alert-info">
                 <h3 class="alert-heading">We did not found any flights</h3>
@@ -207,47 +219,50 @@
         }
         else
         {
-            foreach (var flightBackResult in Model.flightsBackResults.data)
+            foreach (var flightBackResults in Model.flightsBackResults)
             {
-                string link = "https://www.aviasales.com" + flightBackResult.link.Replace("rub", Model.flightsBackResults.currency);
-                string imgLink = "http://pics.avs.io/200/200/" + flightBackResult.airline + ".png";
+                foreach (var flightBackResult in flightBackResults.data)
+                {
+                    string link = "https://www.aviasales.com" + flightBackResult.link.Replace("rub", flightBackResults.currency);
+                    string imgLink = "http://pics.avs.io/200/200/" + flightBackResult.airline + ".png";
 
-                <div class="panel panel-default">
-                    <div class="panel-heading text-center">
-                        <h2>
-                            @flightBackResult.origin_airport
-                            <span class="glyphicon glyphicon glyphicon-arrow-right"></span>
-                            @flightBackResult.destination_airport
-                        </h2>
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
+                    <div class="panel panel-default">
+                        <div class="panel-heading text-center">
+                            <h2>
+                                @flightBackResult.origin_airport
+                                <span class="glyphicon glyphicon glyphicon-arrow-right"></span>
+                                @flightBackResult.destination_airport
+                            </h2>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
+                                </div>
+                                <div class="col-sm-6">
+                                    <h4>Price: <b>@flightBackResult.price</b> @flightBackResults.currency</h4>
+                                    <h4>Start: <b>@flightBackResult.departure_at</b></h4>
+                                    <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightBackResult.duration)</b></h4>
+                                    <h4>End: <b>@flightBackResult.departure_at.Add(TimeSpan.FromMinutes((double)flightBackResult.duration))</b></h4>
+                                    @if (flightBackResult.transfers == 0)
+                                    {
+                                        <h4><b>Direct</b></h4>
+                                    }
+                                    else
+                                    {
+                                        <h4>Transfers: <b>@flightBackResult.transfers</b></h4>
+                                    }
+                                    <h4>Flight: <b>@flightBackResult.airline@flightBackResult.flight_number</b></h4>
+                                </div>
                             </div>
-                            <div class="col-sm-6">
-                                <h4>Price: <b>@flightBackResult.price</b> @Model.flightsBackResults.currency</h4>
-                                <h4>Start: <b>@flightBackResult.departure_at</b></h4>
-                                <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightBackResult.duration)</b></h4>
-                                <h4>End: <b>@flightBackResult.departure_at.Add(TimeSpan.FromMinutes((double)flightBackResult.duration))</b></h4>
-                                @if (flightBackResult.transfers == 0)
-                                {
-                                    <h4><b>Direct</b></h4>
-                                }
-                                else
-                                {
-                                    <h4>Transfers: <b>@flightBackResult.transfers</b></h4>
-                                }
-                                <h4>Flight: <b>@flightBackResult.airline@flightBackResult.flight_number</b></h4>
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <a href="@link" class="btn btn-primary btn-lg btn-block" target="_blank" rel="noopener noreferrer">Check</a>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-12 text-center">
-                                <a href="@link" class="btn btn-primary btn-lg btn-block" target="_blank" rel="noopener noreferrer">Check</a>
-                            </div>
-                        </div>
                     </div>
-                </div>
+                }
             }
         }
     }

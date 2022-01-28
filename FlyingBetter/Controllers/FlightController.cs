@@ -14,6 +14,7 @@ namespace FlyingBetter.Controllers
         public ActionResult Search()
         {
             var model = new FlightSearchModel();
+
             return View(model);
         }
 
@@ -32,19 +33,11 @@ namespace FlyingBetter.Controllers
         {
             FlightSearchResultModel resultModel = new FlightSearchResultModel(model);
             FlightApi flightApi = new FlightApi();
+            Airports airports = new Airports();
 
-            await flightApi.GetCitiesCodes(resultModel);
-            await flightApi.GetNeededFlights(resultModel);
-
-            // if did not found any flight at given dates try nearest dates
-            if (resultModel.flightsResults.data.Count() == 0)
-            {
-                await flightApi.GetNeededFlightsAtNearestDates(resultModel);
-            }
-            if (!(resultModel.flightsBackResults is null) && resultModel.flightsBackResults.data.Count() == 0)
-            {
-                await flightApi.GetNeededFlightsBackAtNearestDates(resultModel);
-            }
+            await flightApi.GetCitiesInfo(resultModel);
+            airports.AddNearestAirportsCodes(resultModel);
+            await flightApi.GetNeededFlightsNearest(resultModel, 1);
 
             return View(resultModel);
         }

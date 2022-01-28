@@ -103,3 +103,7 @@ C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\System.Text.Encodings.W
 C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\System.Text.Json.xml
 C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\System.Threading.Tasks.Extensions.xml
 C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\System.ValueTuple.xml
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\CsvHelper.dll
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\Microsoft.Bcl.HashCode.dll
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\CsvHelper.xml
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\Microsoft.Bcl.HashCode.xml
