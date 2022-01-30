@@ -76,12 +76,14 @@ namespace FlyingBetter.Models.Flight
         private HttpClient client;
         private string autocompleteBaseUri;
         private string flightsBaseUri;
+        private string flightsGroupedBaseUri;
 
         public FlightApi()
         {
             this.client = new HttpClient();
             this.autocompleteBaseUri = "http://autocomplete.travelpayouts.com/places2";
             this.flightsBaseUri = "https://api.travelpayouts.com/aviasales/v3/prices_for_dates";
+            this.flightsGroupedBaseUri = "https://api.travelpayouts.com/aviasales/v3/grouped_prices";
         }
 
         public async Task<AutocompleteResult> GetCityInfo(string cityName)
@@ -218,26 +220,42 @@ namespace FlyingBetter.Models.Flight
             {
                 // get first flights
                 List<Task<FlightsResults>> getFlightsTasks = new List<Task<FlightsResults>>();
-                foreach (var fromCode in model.fromCodes)
+                List<Task<FlightsGroupedResults>> getFlightsGroupedTasks = new List<Task<FlightsGroupedResults>>();
+                if (model.searchDetails.SkipDate)
                 {
-                    foreach (var toCode in model.toCodes)
+                    foreach (var fromCode in model.fromCodes)
                     {
-                        foreach (var daysDiffOne in daysDiffs)
+                        foreach (var toCode in model.toCodes)
                         {
-                            // prepare new date
-                            DateTime newDate = model.searchDetails.Date.AddDays((double) daysDiffOne);
-                            // check if new date is okay
-                            if (DateTime.Today <= newDate &&
-                                (model.searchDetails.FlightType == FlightTypes.OneWay.ToString() ||
-                                 newDate <= model.searchDetails.FlightBackDate))
+                            getFlightsGroupedTasks.Add(GetGroupedFlights(fromCode, toCode, model.searchDetails.Direct));
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var fromCode in model.fromCodes)
+                    {
+                        foreach (var toCode in model.toCodes)
+                        {
+                            foreach (var daysDiffOne in daysDiffs)
                             {
-                                getFlightsTasks.Add(GetFlights(fromCode, toCode, newDate, model.searchDetails.Direct));
+                                // prepare new date
+                                DateTime newDate = model.searchDetails.Date.AddDays((double)daysDiffOne);
+                                // check if new date is okay
+                                if (DateTime.Today <= newDate &&
+                                    (model.searchDetails.FlightType == FlightTypes.OneWay.ToString() ||
+                                        model.searchDetails.SkipFlightBackDate ||
+                                        newDate <= model.searchDetails.FlightBackDate))
+                                {
+                                    getFlightsTasks.Add(GetFlights(fromCode, toCode, newDate, model.searchDetails.Direct));
+                                }
                             }
                         }
                     }
                 }
                 // get flights back if needed
                 List<Task<FlightsResults>> getFlightsBackTasks = new List<Task<FlightsResults>>();
+                List<Task<FlightsGroupedResults>> getFlightsBackGroupedTasks = new List<Task<FlightsGroupedResults>>();
                 if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
                 {
                     // add destination airports from first flight results if there is
@@ -252,32 +270,125 @@ namespace FlyingBetter.Models.Flight
                             }
                         }
                     }
-                    foreach (var fromCode in model.flightBackFromCodes)
+                    if (model.searchDetails.SkipFlightBackDate)
                     {
-                        foreach (var toCode in model.flightBackToCodes)
+                        foreach (var fromCode in model.flightBackFromCodes)
                         {
-                            foreach (var daysDiffOne in daysDiffs)
+                            foreach (var toCode in model.flightBackToCodes)
                             {
-                                // prepare new date
-                                DateTime newDate = model.searchDetails.FlightBackDate.AddDays((double) daysDiffOne);
-                                // check if new date is okay
-                                if (model.searchDetails.Date <= newDate)
+                                getFlightsBackGroupedTasks.Add(GetGroupedFlights(fromCode, toCode, model.searchDetails.FlightBackDirect));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var fromCode in model.flightBackFromCodes)
+                        {
+                            foreach (var toCode in model.flightBackToCodes)
+                            {
+                                foreach (var daysDiffOne in daysDiffs)
                                 {
-                                    getFlightsBackTasks.Add(GetFlights(fromCode, toCode, newDate, model.searchDetails.Direct));
+                                    // prepare new date
+                                    DateTime newDate = model.searchDetails.FlightBackDate.AddDays((double)daysDiffOne);
+                                    // check if new date is okay
+                                    if (model.searchDetails.SkipDate ||
+                                        model.searchDetails.Date <= newDate)
+                                    {
+                                        getFlightsBackTasks.Add(GetFlights(fromCode, toCode, newDate, model.searchDetails.Direct));
+                                    }
                                 }
                             }
                         }
                     }
                     // wait for the async results
-                    for (int i = 0; i < model.flightBackFromCodes.Count() * model.flightBackToCodes.Count() * daysDiffs.Count(); i++)
+                    if (model.searchDetails.SkipFlightBackDate)
                     {
-                        model.flightsBackResults.Add(await getFlightsBackTasks[i]);
+                        for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count(); i++)
+                        {
+                            FlightsGroupedResults flightsBackGroupedResults = await getFlightsBackGroupedTasks[i];
+                            if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString() &&
+                                (!model.searchDetails.SkipDate))
+                            {
+                                flightsBackGroupedResults.FilterResultsAfterDate(model.searchDetails.Date);
+                            }
+                            model.flightsBackResults.Add(flightsBackGroupedResults.ToFlightsResults());
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < model.flightBackFromCodes.Count() * model.flightBackToCodes.Count() * daysDiffs.Count(); i++)
+                        {
+                            model.flightsBackResults.Add(await getFlightsBackTasks[i]);
+                        }
                     }
                 }
                 // wait for the async results
-                for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count() * daysDiffs.Count(); i++)
+                if (model.searchDetails.SkipDate)
                 {
-                    model.flightsResults.Add(await getFlightsTasks[i]);
+                    for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count(); i++)
+                    {
+                        FlightsGroupedResults flightsGroupedResults = await getFlightsGroupedTasks[i];
+                        if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString() &&
+                            (!model.searchDetails.SkipFlightBackDate))
+                        {
+                            flightsGroupedResults.FilterResultsBeforeDate(model.searchDetails.FlightBackDate);
+                        }
+                        model.flightsResults.Add(flightsGroupedResults.ToFlightsResults());
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count() * daysDiffs.Count(); i++)
+                    {
+                        model.flightsResults.Add(await getFlightsTasks[i]);
+                    }
+                }
+            }
+            catch (ApiCallException e)
+            {
+                model.success = false;
+                model.errorDescription = "Error occurred, try again in a moment.";
+            }
+        }
+
+        public async Task<FlightsGroupedResults> GetGroupedFlights(string fromCode, string toCode, bool direct)
+        {
+            string queryParams = $"?origin={fromCode}&destination={toCode}&direct={direct.ToString().ToLower()}&currency=pln&token=d7c205222fc0dfdc0a9054f1f5f8a7ea";
+            var apiRequest = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(this.flightsGroupedBaseUri + queryParams)
+            };
+
+            using (var apiResponse = await this.client.SendAsync(apiRequest))
+            {
+                if (apiResponse.IsSuccessStatusCode)
+                {
+                    return await apiResponse.Content.ReadFromJsonAsync<FlightsGroupedResults>();
+                }
+            }
+            throw new ApiCallException();
+        }
+
+        public async Task GetGroupedFlightsNearest(FlightSearchResultModel model)
+        {
+            try
+            {
+                // get first flights
+                List<Task<FlightsGroupedResults>> getGroupedFlightsTasks = new List<Task<FlightsGroupedResults>>();
+                foreach (var fromCode in model.fromCodes)
+                {
+                    foreach (var toCode in model.toCodes)
+                    {
+                        getGroupedFlightsTasks.Add(GetGroupedFlights(fromCode, toCode, model.searchDetails.Direct));
+                    }
+                }
+                
+                // wait for the async results
+                for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count(); i++)
+                {
+                    FlightsGroupedResults fgr = await getGroupedFlightsTasks[i];
+                    model.flightsResults.Add(fgr.ToFlightsResults());
                 }
             }
             catch (ApiCallException e)
@@ -407,6 +518,35 @@ namespace FlyingBetter.Models.Flight
         public bool success { get; set; }
         public List<FlightsResult> data { get; set; }
         public string currency { get; set; }
+    }
+
+    public class FlightsGroupedResults
+    {
+        public bool success { get; set; }
+        public Dictionary<DateTime, FlightsResult> data { get; set; }
+        public string currency { get; set; }
+
+        public FlightsResults ToFlightsResults()
+        {
+            FlightsResults fr = new FlightsResults();
+            fr.success = this.success;
+            fr.data = this.data.Values.ToList();
+            fr.currency = this.currency;
+
+            return fr;
+        }
+        public void FilterResultsBeforeDate(DateTime date)
+        {
+            this.data = data
+                        .Where(fr => fr.Key < date)
+                        .ToDictionary(p => p.Key, p => p.Value);
+        }
+        public void FilterResultsAfterDate(DateTime date)
+        {
+            this.data = data
+                        .Where(fr => fr.Key > date)
+                        .ToDictionary(p => p.Key, p => p.Value);
+        }
     }
 
     public class FlightsResult

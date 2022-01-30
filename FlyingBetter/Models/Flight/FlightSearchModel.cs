@@ -23,6 +23,9 @@ namespace FlyingBetter.Models.Flight
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime Date { get; set; }
 
+        [Required(ErrorMessage = "Skip Date indication is required")]
+        public bool SkipDate { get; set; }
+
         [Required(ErrorMessage = "Adults number is required")]
         [Range(1, 20, ErrorMessage = "Adults number must be between 1 and 20")]
         public int Adults { get; set; }
@@ -51,6 +54,9 @@ namespace FlyingBetter.Models.Flight
         [DataType(DataType.Date, ErrorMessage = "Format is in incorrect format.")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime FlightBackDate { get; set; }
+
+        [Required(ErrorMessage = "Skip Date indication is required")]
+        public bool SkipFlightBackDate { get; set; }
 
         [Required(ErrorMessage = "Adults number is required")]
         [Range(0, 20, ErrorMessage = "Adults number must be between 1 and 20")]

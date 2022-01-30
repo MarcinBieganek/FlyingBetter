@@ -34,6 +34,11 @@
         <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.Date)</label>
     </div>
     <div class="form-group row">
+        <label class="col-sm-1 col-xs-12 control-label">Skip Date</label>
+        @Html.CheckBoxFor(m => m.SkipDate, new { @class = "col-sm-8 col-xs-12 form-control", @checked = Model.SkipDate })
+        <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.SkipDate)</label>
+    </div>
+    <div class="form-group row">
         <label class="col-sm-1 col-xs-12 control-label">Adults</label>
         @Html.EditorFor(m => m.Adults, new { htmlAttributes = new { min = 1, max = 20, @class = "col-sm-8 col-xs-12 form-control" } })
         <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.Adults)</label>
@@ -89,6 +94,11 @@
         <label class="col-sm-1 col-xs-12 control-label">Date</label>
         @Html.EditorFor(m => m.FlightBackDate, FlightBackDateReadOnly ? new { htmlAttributes = (object)new { @readonly = FlightBackDateReadOnly, min = DateTime.Now.ToString("yyyy-MM-dd"), @class = "col-sm-8 col-xs-12 form-control" } } : (object)new { htmlAttributes = new { min = DateTime.Now.ToString("yyyy-MM-dd"), @class = "col-sm-8 col-xs-12 form-control" } })
         <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.FlightBackDate)</label>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-xs-12 control-label">Skip Date</label>
+        @Html.CheckBoxFor(m => m.SkipFlightBackDate, new { @class = "col-sm-8 col-xs-12 form-control", @checked = Model.SkipFlightBackDate })
+        <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.SkipFlightBackDate)</label>
     </div>
     <div class="form-group row">
         <label class="col-sm-1 col-xs-12 control-label">Adults</label>
