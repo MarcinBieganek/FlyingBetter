@@ -39,6 +39,13 @@ namespace FlyingBetter.Controllers
             airports.AddNearestAirportsCodes(resultModel);
             await flightApi.GetNeededFlightsNearest(resultModel, 1);
 
+            if (model.To == null || 
+                    (model.FlightType != FlightTypes.OneWay.ToString() && 
+                    model.FlightBackFrom == "NA"))
+            {
+                resultModel.SortFlightResults();
+            }
+
             return View(resultModel);
         }
     }

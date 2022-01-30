@@ -14,8 +14,6 @@ namespace FlyingBetter.Models.Flight
         [RegularExpression(@"^[a-zA-Z''-'\s]+$", ErrorMessage = "Only letters")]
         public string From { get; set; }
 
-        [Required(ErrorMessage = "Location To is required.")]
-        [MinLength(2, ErrorMessage = "Too short.")]
         [MaxLength(50, ErrorMessage = "Too long.")]
         [RegularExpression(@"^[a-zA-Z''-'\s]+$", ErrorMessage = "Only letters")]
         public string To { get; set; }
@@ -39,8 +37,6 @@ namespace FlyingBetter.Models.Flight
         [Required(ErrorMessage = "Flight type is required")]
         public string FlightType { get; set; }
 
-        [Required(ErrorMessage = "Location From is required.")]
-        [MinLength(2, ErrorMessage = "Too short.")]
         [MaxLength(50, ErrorMessage = "Too long.")]
         [RegularExpression(@"^[a-zA-Z''-'\s]+$", ErrorMessage = "Only letters")]
         public string FlightBackFrom { get; set; }

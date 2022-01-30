@@ -56,6 +56,19 @@ namespace FlyingBetter.Models.Flight
             this.flightsResults = new List<FlightsResults>();
             this.flightsBackResults = new List<FlightsResults>();
         }
+
+        public void SortFlightResults()
+        {
+            this.flightsResults = 
+                this.flightsResults
+                    .OrderBy(fr => (fr.data.Count() > 0) ? fr.data[0].destination_airport : "")
+                    .ToList();
+
+            this.flightsBackResults = 
+                this.flightsBackResults
+                    .OrderBy(fr => (fr.data.Count() > 0) ? fr.data[0].origin_airport : "")
+                    .ToList();
+        }
     }
 
     public class FlightApi
@@ -102,22 +115,43 @@ namespace FlyingBetter.Models.Flight
             {
                 // get first flight cities info and codes
                 var getCityInfoFrom = GetCityInfo(model.searchDetails.From);
-                var getCityInfoTo = GetCityInfo(model.searchDetails.To);
+                // To city only if it was specified
+                if (model.searchDetails.To != null)
+                {
+                    model.toInfo = await GetCityInfo(model.searchDetails.To);
+                    model.toCodes.Add(model.toInfo.code);
+                }
+                else
+                {
+                    model.toCodes.Add("");
+                }
                 model.fromInfo = await getCityInfoFrom;
                 model.fromCodes.Add(model.fromInfo.code);
-                model.toInfo = await getCityInfoTo;
-                model.toCodes.Add(model.toInfo.code);
                 // get flight back cities info and codes if needed
-                model.flightBackFromInfo = model.fromInfo;
-                model.flightBackToInfo = model.toInfo;
-                model.flightBackFromCodes.Add(model.flightBackFromInfo.code);
+                if (model.searchDetails.To != null)
+                {
+                    model.flightBackFromInfo = model.toInfo;
+                    model.flightBackFromCodes.Add(model.flightBackFromInfo.code);
+                }
+                else
+                {
+                    model.flightBackFromCodes.Add("");
+                }
+                model.flightBackToInfo = model.fromInfo;
                 model.flightBackToCodes.Add(model.flightBackToInfo.code);
                 if (model.searchDetails.FlightType == FlightTypes.RoundTripNonStandard.ToString())
                 {
                     if (model.searchDetails.FlightBackFrom != model.searchDetails.To)
                     {
-                        model.flightBackFromInfo = await GetCityInfo(model.searchDetails.FlightBackFrom);
-                        model.flightBackFromCodes[0] = model.flightBackFromInfo.code;
+                        if (model.searchDetails.FlightBackFrom != null)
+                        {
+                            model.flightBackFromInfo = await GetCityInfo(model.searchDetails.FlightBackFrom);
+                            model.flightBackFromCodes[0] = model.flightBackFromInfo.code;
+                        }
+                        else
+                        {
+                            model.flightBackFromCodes[0] = "";
+                        }
                     }
                     if (model.searchDetails.FlightBackTo != model.searchDetails.From)
                     {
@@ -206,6 +240,18 @@ namespace FlyingBetter.Models.Flight
                 List<Task<FlightsResults>> getFlightsBackTasks = new List<Task<FlightsResults>>();
                 if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
                 {
+                    // add destination airports from first flight results if there is
+                    // no from location for flight back specified
+                    if (model.searchDetails.FlightBackFrom == null)
+                    {
+                        foreach (var flightsResult in model.flightsResults)
+                        {
+                            foreach (var flightResult in flightsResult.data)
+                            {
+                                model.flightBackFromCodes.Add(flightResult.destination_airport);
+                            }
+                        }
+                    }
                     foreach (var fromCode in model.flightBackFromCodes)
                     {
                         foreach (var toCode in model.flightBackToCodes)
@@ -297,20 +343,21 @@ namespace FlyingBetter.Models.Flight
         public void AddNearestAirportsCodes(FlightSearchResultModel model)
         {
             model.fromCodes.AddRange(GetNearestAirportsCodes(model.fromInfo.coordinates["lat"], model.fromInfo.coordinates["lon"], 200.0));
-            model.fromCodes = model.fromCodes.Distinct().ToList();
-            model.toCodes.AddRange(GetNearestAirportsCodes(model.toInfo.coordinates["lat"], model.toInfo.coordinates["lon"], 200.0));
-            model.toCodes = model.toCodes.Distinct().ToList();
-
-            foreach (var m in model.fromCodes)
-                Debug.WriteLine(m);
-
-            foreach (var m in model.toCodes)
-                Debug.WriteLine(m);
+            model.fromCodes = model.fromCodes.Distinct().Take<string>(5).ToList();
+            // To city only if was specified
+            if (model.searchDetails.To != null)
+            {
+                model.toCodes.AddRange(GetNearestAirportsCodes(model.toInfo.coordinates["lat"], model.toInfo.coordinates["lon"], 200.0));
+                model.toCodes = model.toCodes.Distinct().Take<string>(5).ToList();
+            }
 
             if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
             {
-                model.flightBackFromCodes.AddRange(GetNearestAirportsCodes(model.flightBackFromInfo.coordinates["lat"], model.flightBackFromInfo.coordinates["lon"], 200.0));
-                model.flightBackFromCodes = model.flightBackFromCodes.Distinct().ToList();
+                if (model.searchDetails.FlightBackFrom != "NA")
+                {
+                    model.flightBackFromCodes.AddRange(GetNearestAirportsCodes(model.flightBackFromInfo.coordinates["lat"], model.flightBackFromInfo.coordinates["lon"], 200.0));
+                    model.flightBackFromCodes = model.flightBackFromCodes.Distinct().ToList();
+                }
                 model.flightBackToCodes.AddRange(GetNearestAirportsCodes(model.flightBackToInfo.coordinates["lat"], model.flightBackToInfo.coordinates["lon"], 200.0));
                 model.flightBackToCodes = model.flightBackToCodes.Distinct().ToList();
             }
