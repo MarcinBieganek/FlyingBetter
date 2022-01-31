@@ -24,8 +24,8 @@ namespace FlyingBetter.Models.Flight
         public List<string> toCodes { get; set; }
         public List<string> flightBackFromCodes { get; set; }
         public List<string> flightBackToCodes { get; set; }
-        public List<FlightsResults> flightsResults { get; set; }
-        public List<FlightsResults> flightsBackResults { get; set; }
+        public List<FlightsResult> flightsResults { get; set; }
+        public List<FlightsResult> flightsBackResults { get; set; }
         public bool flightsNearestDayChecked { get; set; }
         public bool flightsBackNearestDayChecked { get; set; }
         public bool success { get; set; }
@@ -40,8 +40,8 @@ namespace FlyingBetter.Models.Flight
             this.toCodes = new List<string>();
             this.flightBackFromCodes = new List<string>();
             this.flightBackToCodes = new List<string>();
-            this.flightsResults = new List<FlightsResults>();
-            this.flightsBackResults = new List<FlightsResults>();
+            this.flightsResults = new List<FlightsResult>();
+            this.flightsBackResults = new List<FlightsResult>();
         }
 
         public FlightSearchResultModel(FlightSearchModel flightSearchModel)
@@ -53,20 +53,20 @@ namespace FlyingBetter.Models.Flight
             this.toCodes = new List<string>();
             this.flightBackFromCodes = new List<string>();
             this.flightBackToCodes = new List<string>();
-            this.flightsResults = new List<FlightsResults>();
-            this.flightsBackResults = new List<FlightsResults>();
+            this.flightsResults = new List<FlightsResult>();
+            this.flightsBackResults = new List<FlightsResult>();
         }
 
         public void SortFlightResults()
         {
             this.flightsResults = 
                 this.flightsResults
-                    .OrderBy(fr => (fr.data.Count() > 0) ? fr.data[0].destination_airport : "")
+                    .OrderBy(fr => fr.destination_airport)
                     .ToList();
 
             this.flightsBackResults = 
                 this.flightsBackResults
-                    .OrderBy(fr => (fr.data.Count() > 0) ? fr.data[0].origin_airport : "")
+                    .OrderBy(fr => fr.origin_airport)
                     .ToList();
         }
     }
@@ -192,27 +192,7 @@ namespace FlyingBetter.Models.Flight
             }
             throw new ApiCallException();
         }
-
-        public async Task GetNeededFlights(FlightSearchResultModel model)
-        {
-            try
-            {
-                // get first flights
-                Task<FlightsResults> getFlightsTask = GetFlights(model.fromCodes[0], model.toCodes[0], model.searchDetails.Date, model.searchDetails.Direct);
-                // get flights back if needed
-                if (model.searchDetails.FlightType != FlightTypes.OneWay.ToString())
-                {
-                    model.flightsBackResults.Add(await GetFlights(model.flightBackFromCodes[0], model.flightBackToCodes[0], model.searchDetails.FlightBackDate, model.searchDetails.FlightBackDirect));
-                }
-                model.flightsResults.Add(await getFlightsTask);
-            }
-            catch (ApiCallException e)
-            {
-                model.success = false;
-                model.errorDescription = "Error occurred, try again in a moment.";
-            }
-        }
-
+        
         public async Task GetNeededFlightsNearest(FlightSearchResultModel model, int daysRangeRadius)
         {
             List<int> daysDiffs = Enumerable.Range(-daysRangeRadius, (daysRangeRadius * 2) + 1).ToList();
@@ -262,12 +242,9 @@ namespace FlyingBetter.Models.Flight
                     // no from location for flight back specified
                     if (model.searchDetails.FlightBackFrom == null)
                     {
-                        foreach (var flightsResult in model.flightsResults)
+                        foreach (var flightResult in model.flightsResults)
                         {
-                            foreach (var flightResult in flightsResult.data)
-                            {
-                                model.flightBackFromCodes.Add(flightResult.destination_airport);
-                            }
+                            model.flightBackFromCodes.Add(flightResult.destination_airport);
                         }
                     }
                     if (model.searchDetails.SkipFlightBackDate)
@@ -311,14 +288,14 @@ namespace FlyingBetter.Models.Flight
                             {
                                 flightsBackGroupedResults.FilterResultsAfterDate(model.searchDetails.Date);
                             }
-                            model.flightsBackResults.Add(flightsBackGroupedResults.ToFlightsResults());
+                            model.flightsBackResults.AddRange(flightsBackGroupedResults.ToFlightsResults().data);
                         }
                     }
                     else
                     {
                         for (int i = 0; i < model.flightBackFromCodes.Count() * model.flightBackToCodes.Count() * daysDiffs.Count(); i++)
                         {
-                            model.flightsBackResults.Add(await getFlightsBackTasks[i]);
+                            model.flightsBackResults.AddRange((await getFlightsBackTasks[i]).data);
                         }
                     }
                 }
@@ -333,14 +310,14 @@ namespace FlyingBetter.Models.Flight
                         {
                             flightsGroupedResults.FilterResultsBeforeDate(model.searchDetails.FlightBackDate);
                         }
-                        model.flightsResults.Add(flightsGroupedResults.ToFlightsResults());
+                        model.flightsResults.AddRange(flightsGroupedResults.ToFlightsResults().data);
                     }
                 }
                 else
                 {
                     for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count() * daysDiffs.Count(); i++)
                     {
-                        model.flightsResults.Add(await getFlightsTasks[i]);
+                        model.flightsResults.AddRange((await getFlightsTasks[i]).data);
                     }
                 }
             }
@@ -388,7 +365,7 @@ namespace FlyingBetter.Models.Flight
                 for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count(); i++)
                 {
                     FlightsGroupedResults fgr = await getGroupedFlightsTasks[i];
-                    model.flightsResults.Add(fgr.ToFlightsResults());
+                    model.flightsResults.AddRange(fgr.ToFlightsResults().data);
                 }
             }
             catch (ApiCallException e)
@@ -563,6 +540,60 @@ namespace FlyingBetter.Models.Flight
         public int return_transfers { get; set; }
         public int duration { get; set; }
         public string link { get; set; }
+    }
+
+    public class FlightsResultOrder
+    { 
+        public int FlightValue(FlightsResult flight)
+        {
+            int value = -flight.price;
+            // flights without layovers are better
+            if (flight.transfers == 0)
+            {
+                value += 100;
+            } else
+            {
+                value -= (flight.transfers * 50);
+            }
+            // flights during a day are better
+            TimeSpan dayStart = new TimeSpan(8, 0, 0);
+            TimeSpan dayEnd = new TimeSpan(20, 0, 0);
+            if (dayStart <= flight.departure_at.TimeOfDay && flight.departure_at.TimeOfDay <= dayEnd)
+            {
+                value += 100;
+            }
+            // last minute flights are worst
+            TimeSpan oneMonth = new TimeSpan(30, 0, 0, 0);
+            TimeSpan fourMonths = new TimeSpan(120, 0, 0, 0);
+            TimeSpan nowToFlightDiff = flight.departure_at - DateTime.Now;
+            if (nowToFlightDiff < oneMonth)
+            {
+                value += 30;
+            }
+            else if (oneMonth <= nowToFlightDiff && nowToFlightDiff <= fourMonths)
+            {
+                value += 100;
+            } 
+            else
+            {
+                value += 50;
+            }
+
+            return value;
+        }
+
+        public List<FlightsResult> orderFlights(List<FlightsResult> flights)
+        {
+            return flights
+                    .OrderByDescending(f => FlightValue(f))
+                    .ToList();
+        }
+
+        public void orderFlightResults(FlightSearchResultModel model)
+        {
+            model.flightsResults = orderFlights(model.flightsResults);
+            model.flightsBackResults = orderFlights(model.flightsBackResults);
+        }
     }
 
     public class NoAirportFoundException : Exception

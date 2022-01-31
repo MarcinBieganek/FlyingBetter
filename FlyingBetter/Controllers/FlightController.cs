@@ -34,6 +34,7 @@ namespace FlyingBetter.Controllers
             FlightSearchResultModel resultModel = new FlightSearchResultModel(model);
             FlightApi flightApi = new FlightApi();
             Airports airports = new Airports();
+            FlightsResultOrder flightOrder = new FlightsResultOrder();
 
             await flightApi.GetCitiesInfo(resultModel);
             airports.AddNearestAirportsCodes(resultModel);
@@ -45,6 +46,8 @@ namespace FlyingBetter.Controllers
             {
                 resultModel.SortFlightResults();
             }
+
+            flightOrder.orderFlightResults(resultModel);
 
             return View(resultModel);
         }
