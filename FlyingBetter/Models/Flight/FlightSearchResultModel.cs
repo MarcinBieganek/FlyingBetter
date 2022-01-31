@@ -174,6 +174,31 @@ namespace FlyingBetter.Models.Flight
             }
         }
 
+        public async Task GetCitiesInfo(FlightIdeasModel model)
+        {
+            try
+            {
+                if (model.From != null)
+                {
+                    model.fromCode = (await GetCityInfo(model.From)).code;
+                }
+                else
+                {
+                    model.fromCode = "";
+                }
+            }
+            catch (NoAirportFoundException e)
+            {
+                model.success = false;
+                model.errorDescription = $"We did not found airport for {e.Message}.";
+            }
+            catch (ApiCallException e)
+            {
+                model.success = false;
+                model.errorDescription = "Error occurred, try again in a moment.";
+            }
+        }
+
         public async Task<FlightsResults> GetFlights(string fromCode, string toCode, DateTime date, bool direct)
         {
             string queryParams = $"?origin={fromCode}&destination={toCode}&departure_at={date.ToString("yyyy-MM-dd")}&sorting=price&direct={direct.ToString().ToLower()}&currency=pln&limit=20&page=1&one_way=true&token=d7c205222fc0dfdc0a9054f1f5f8a7ea";
@@ -347,25 +372,22 @@ namespace FlyingBetter.Models.Flight
             throw new ApiCallException();
         }
 
-        public async Task GetGroupedFlightsNearest(FlightSearchResultModel model)
+        public async Task GetFlightsToPopularDest(FlightIdeasModel model)
         {
             try
             {
                 // get first flights
                 List<Task<FlightsGroupedResults>> getGroupedFlightsTasks = new List<Task<FlightsGroupedResults>>();
-                foreach (var fromCode in model.fromCodes)
+                foreach (var toCode in model.PopularDest)
                 {
-                    foreach (var toCode in model.toCodes)
-                    {
-                        getGroupedFlightsTasks.Add(GetGroupedFlights(fromCode, toCode, model.searchDetails.Direct));
-                    }
+                    getGroupedFlightsTasks.Add(GetGroupedFlights(model.fromCode, toCode, model.Direct));
                 }
                 
                 // wait for the async results
-                for (int i = 0; i < model.fromCodes.Count() * model.toCodes.Count(); i++)
+                for (int i = 0; i < model.PopularDest.Count(); i++)
                 {
                     FlightsGroupedResults fgr = await getGroupedFlightsTasks[i];
-                    model.flightsResults.AddRange(fgr.ToFlightsResults().data);
+                    model.FlightsResults.AddRange(fgr.ToFlightsResults().data);
                 }
             }
             catch (ApiCallException e)
@@ -582,10 +604,17 @@ namespace FlyingBetter.Models.Flight
             return value;
         }
 
-        public List<FlightsResult> orderFlights(List<FlightsResult> flights)
+        List<FlightsResult> orderFlights(List<FlightsResult> flights)
         {
             return flights
                     .OrderByDescending(f => FlightValue(f))
+                    .ToList();
+        }
+
+        List<FlightsResult> limitFlights(List<FlightsResult> flights, int limit)
+        {
+            return flights
+                    .Take(limit)
                     .ToList();
         }
 
@@ -594,6 +623,49 @@ namespace FlyingBetter.Models.Flight
             model.flightsResults = orderFlights(model.flightsResults);
             model.flightsBackResults = orderFlights(model.flightsBackResults);
         }
+
+        public void orderFlightResults(FlightIdeasModel model)
+        {
+            model.FlightsResults = orderFlights(model.FlightsResults);
+        }
+
+        public void limitFlightResults(FlightIdeasModel model, int limit)
+        {
+            model.FlightsResults = limitFlights(model.FlightsResults, limit);
+        }
+    }
+
+    public class SearchHistory
+    {
+        public static List<SearchInfo> searchInfos;
+
+        static SearchHistory()
+        {
+            searchInfos = new List<SearchInfo>();
+            searchInfos.Add(new SearchInfo() { from = "WRO", to = "LIS", timestamp = DateTime.Now });
+            searchInfos.Add(new SearchInfo() { from = "WRO", to = "FCO", timestamp = DateTime.Now });
+            searchInfos.Add(new SearchInfo() { from = "WAW", to = "LHR", timestamp = DateTime.Now });
+            searchInfos.Add(new SearchInfo() { from = "WAW", to = "BCN", timestamp = DateTime.Now });
+            searchInfos.Add(new SearchInfo() { from = "WAW", to = "ATH", timestamp = DateTime.Now });
+        }
+
+        public List<string> getPopularDest()
+        {
+            return searchInfos
+                    .GroupBy(si => si.to)
+                    .Select(g => new { to = g.Key, count = g.Count()})
+                    .OrderByDescending(e => e.count)
+                    .Take(5)
+                    .Select(e => e.to)
+                    .ToList();
+        }
+    }
+
+    public class SearchInfo
+    {
+        public string from { get; set; }
+        public string to { get; set; }
+        public DateTime timestamp { get; set; }
     }
 
     public class NoAirportFoundException : Exception

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Diagnostics;
+using System.IO;
 using FlyingBetter.Models.Flight;
 using System.Threading.Tasks;
 
@@ -50,6 +52,46 @@ namespace FlyingBetter.Controllers
             flightOrder.orderFlightResults(resultModel);
 
             return View(resultModel);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> Ideas()
+        {
+            var model = new FlightIdeasModel();
+
+            SearchHistory searchHistory = new SearchHistory();
+            FlightApi flightApi = new FlightApi();
+            FlightsResultOrder flightOrder = new FlightsResultOrder();
+            model.PopularDest = searchHistory.getPopularDest();
+
+            await flightApi.GetFlightsToPopularDest(model);
+
+            flightOrder.orderFlightResults(model);
+            flightOrder.limitFlightResults(model, 50);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Ideas(FlightIdeasModel model)
+        {
+            if (this.ModelState.IsValid)
+            {
+                SearchHistory searchHistory = new SearchHistory();
+                FlightApi flightApi = new FlightApi();
+                FlightsResultOrder flightOrder = new FlightsResultOrder();
+                model.PopularDest = searchHistory.getPopularDest();
+
+                await flightApi.GetCitiesInfo(model);
+                await flightApi.GetFlightsToPopularDest(model);
+
+                flightOrder.orderFlightResults(model);
+                flightOrder.limitFlightResults(model, 50);
+
+                return View(model);
+            }
+
+            return View(model);
         }
     }
 }
