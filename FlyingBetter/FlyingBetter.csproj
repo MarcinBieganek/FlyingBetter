@@ -162,9 +162,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Flight\Airports.cs" />
+    <Compile Include="Models\Flight\FlightAPI.cs" />
     <Compile Include="Models\Flight\FlightIdeasModel.cs" />
     <Compile Include="Models\Flight\FlightSearchModel.cs" />
     <Compile Include="Models\Flight\FlightSearchResultModel.cs" />
+    <Compile Include="Models\Flight\FlightsResultOrder.cs" />
+    <Compile Include="Models\Flight\SearchHistory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +204,7 @@
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="App_Data\airports.csv" />
+    <Content Include="App_Data\searchHistory.csv" />
     <None Include="Properties\PublishProfiles\FlyingBetter - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />

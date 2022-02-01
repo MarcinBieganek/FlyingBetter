@@ -37,6 +37,7 @@ namespace FlyingBetter.Controllers
             FlightApi flightApi = new FlightApi();
             Airports airports = new Airports();
             FlightsResultOrder flightOrder = new FlightsResultOrder();
+            SearchHistory searchHistory = new SearchHistory();
 
             await flightApi.GetCitiesInfo(resultModel);
             airports.AddNearestAirportsCodes(resultModel);
@@ -50,6 +51,7 @@ namespace FlyingBetter.Controllers
             }
 
             flightOrder.orderFlightResults(resultModel);
+            searchHistory.addSearchInfo(resultModel.fromCodes[0], resultModel.toCodes[0]);
 
             return View(resultModel);
         }
