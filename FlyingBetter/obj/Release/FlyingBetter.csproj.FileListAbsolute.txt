@@ -102,3 +102,8 @@ C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\pl\System.Web.WebPages.
 C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\obj\Release\FlyingBetter.csproj.CoreCompileInputs.cache
 C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\obj\Release\FlyingBetter.dll
 C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\obj\Release\FlyingBetter.pdb
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\CsvHelper.dll
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\Microsoft.Bcl.HashCode.dll
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\CsvHelper.xml
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\bin\Microsoft.Bcl.HashCode.xml
+C:\MARCIN\STUDIA\PRACA INZ\FlyingBetter\FlyingBetter\obj\Release\FlyingBetter.csproj.AssemblyReference.cache

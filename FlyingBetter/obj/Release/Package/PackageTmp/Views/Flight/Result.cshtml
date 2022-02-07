@@ -81,7 +81,7 @@
         </div>
     }
 
-    if (Model.flightsResults.data.Count() == 0)
+    if (Model.flightsResults.Count == 0)
     {
         <div class="alert alert-info">
             <h3 class="alert-heading">We did not found any flights</h3>
@@ -90,9 +90,9 @@
     }
     else
     {
-        foreach (var flightResult in Model.flightsResults.data)
+        foreach (var flightResult in Model.flightsResults)
         {
-            string link = "https://www.aviasales.com" + flightResult.link.Replace("rub", Model.flightsResults.currency);
+            string link = "https://www.aviasales.com" + flightResult.link.Replace("rub", "pln");
             string imgLink = "http://pics.avs.io/200/200/" + flightResult.airline + ".png";
 
             <div class="panel panel-default">
@@ -109,7 +109,7 @@
                             <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
                         </div>
                         <div class="col-sm-6">
-                            <h4>Price: <b>@flightResult.price</b> @Model.flightsResults.currency</h4>
+                            <h4>Price: <b>@flightResult.price</b> pln</h4>
                             <h4>Start: <b>@flightResult.departure_at</b></h4>
                             <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightResult.duration)</b></h4>
                             <h4>End: <b>@flightResult.departure_at.Add(TimeSpan.FromMinutes((double)flightResult.duration))</b></h4>
@@ -198,7 +198,7 @@
             </div>
         }
 
-        if (Model.flightsBackResults.data.Count() == 0)
+        if (Model.flightsBackResults.Count == 0)
         {
             <div class="alert alert-info">
                 <h3 class="alert-heading">We did not found any flights</h3>
@@ -207,9 +207,9 @@
         }
         else
         {
-            foreach (var flightBackResult in Model.flightsBackResults.data)
+            foreach (var flightBackResult in Model.flightsBackResults)
             {
-                string link = "https://www.aviasales.com" + flightBackResult.link.Replace("rub", Model.flightsBackResults.currency);
+                string link = "https://www.aviasales.com" + flightBackResult.link.Replace("rub", "pln");
                 string imgLink = "http://pics.avs.io/200/200/" + flightBackResult.airline + ".png";
 
                 <div class="panel panel-default">
@@ -226,7 +226,7 @@
                                 <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
                             </div>
                             <div class="col-sm-6">
-                                <h4>Price: <b>@flightBackResult.price</b> @Model.flightsBackResults.currency</h4>
+                                <h4>Price: <b>@flightBackResult.price</b> pln</h4>
                                 <h4>Start: <b>@flightBackResult.departure_at</b></h4>
                                 <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightBackResult.duration)</b></h4>
                                 <h4>End: <b>@flightBackResult.departure_at.Add(TimeSpan.FromMinutes((double)flightBackResult.duration))</b></h4>

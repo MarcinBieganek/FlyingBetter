@@ -184,6 +184,15 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\favicon.ico" />
+    <Content Include="Content\flight back details round trip non standard.png" />
+    <Content Include="Content\flight back details round trip standard.png" />
+    <Content Include="Content\flight back details.png" />
+    <Content Include="Content\flight details round trip non standard.png" />
+    <Content Include="Content\flight details round trip standard.png" />
+    <Content Include="Content\flight details.png" />
+    <Content Include="Content\flight ideas main.png" />
+    <Content Include="Content\flight search result.png" />
+    <Content Include="Content\flight search validation.png" />
     <Content Include="Content\FormValidation.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />

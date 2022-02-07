@@ -1,0 +1,95 @@
+﻿@model FlyingBetter.Models.Flight.FlightIdeasModel
+@{
+    ViewBag.Title = "Ideas";
+}
+
+@Styles.Render("~/Content/FormValidation.css")
+
+<h2>Get flights ideas</h2>
+
+<hr />
+
+<form method="POST" class="form-horizontal">
+    <div class="form-group row">
+        <label class="col-sm-1 col-xs-12 control-label">From</label>
+        @Html.TextBoxFor(m => m.From, new { @class = "col-sm-8 col-xs-12 form-control" })
+        <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.From)</label>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-xs-12 control-label">Direct</label>
+        @Html.CheckBoxFor(m => m.Direct, new { @class = "col-sm-8 col-xs-12 form-control", @checked = Model.Direct })
+        <label class="col-sm-3 col-xs-12 control-label">@Html.ValidationMessageFor(m => m.Direct)</label>
+    </div>
+    <div class="form-group row">
+        <button type="submit" class="btn btn-primary btn-lg">Get ideas</button>
+    </div>
+</form>
+
+<hr />
+
+<h2>Our flights ideas</h2>
+
+<hr />
+
+@if (Model.success)
+{
+    if (Model.FlightsResults.Count == 0)
+    {
+        <div class="alert alert-info">
+            <h3 class="alert-heading">We did not found any flights</h3>
+            <p>Try with diffrent location.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var flightResult in Model.FlightsResults)
+        {
+            string link = "https://www.aviasales.com" + flightResult.link.Replace("rub", "pln");
+            string imgLink = "http://pics.avs.io/200/200/" + flightResult.airline + ".png";
+
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h2>
+                        @flightResult.origin_airport
+                        <span class="glyphicon glglyphicon glyphicon-arrow-right"></span>
+                        @flightResult.destination_airport
+                    </h2>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <img class="img-responsive center-block" src="@imgLink" alt="Airline logo" />
+                        </div>
+                        <div class="col-sm-6">
+                            <h4>Price: <b>@flightResult.price</b> pln</h4>
+                            <h4>Start: <b>@flightResult.departure_at</b></h4>
+                            <h4>Duration: <b>@TimeSpan.FromMinutes((double)flightResult.duration)</b></h4>
+                            <h4>End: <b>@flightResult.departure_at.Add(TimeSpan.FromMinutes((double)flightResult.duration))</b></h4>
+                            @if (flightResult.transfers == 0)
+                            {
+                                <h4><b>Direct</b></h4>
+                            }
+                            else
+                            {
+                                <h4>Transfers: <b>@flightResult.transfers</b></h4>
+                            }
+                            <h4>Flight: <b>@flightResult.airline@flightResult.flight_number</b></h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <a href="@link" class="btn btn-primary btn-lg btn-block" target="_blank" rel="noopener noreferrer">Check</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}
+else
+{
+    <div class="alert alert-warning">
+        <h3 class="alert-heading">Something went wrong</h3>
+        <p>@Model.errorDescription</p>
+    </div>
+}

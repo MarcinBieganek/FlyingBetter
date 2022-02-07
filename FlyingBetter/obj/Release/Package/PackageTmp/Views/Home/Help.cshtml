@@ -1,7 +1,157 @@
 ﻿@{
     ViewBag.Title = "Help";
 }
-<h2>@ViewBag.Title</h2>
-<h3>@ViewBag.Message</h3>
+<h2>Help guide</h2>
 
-<p>TODO: Add help guide here!</p>
+<hr />
+
+<h3>Flight Search page</h3>
+
+<p>
+    On the Flight Search page you can search flights using one of three flight types.
+    You can choose beetwen them using radio button in the middle of the page.
+</p>
+
+<hr />
+
+<h3>One Way flights</h3>
+
+<hr />
+
+<div class="row">
+    <div class="col-sm-6">
+        <img src="~/Content/flight details.png" class="img-responsive">
+    </div>
+    <div class="col-sm-6">
+        <img src="~/Content/flight back details.png" class="img-responsive" />
+    </div>
+</div>
+
+<hr />
+
+<p>
+    In one way flight mode you can only specify first flight details. Flight back details are read only.
+    From and To locations are text fields where you can input city names without any numbers and special characters.
+    You can choose date using datepicker. You can choose to skip date. Numbers of passengers are number fields
+    where you can write numbers or use arrows on the right.
+</p>
+
+<hr />
+
+<h3>Round trip standard flights</h3>
+
+<hr />
+
+<div class="row">
+    <div class="col-sm-6">
+        <img src="~/Content/flight details round trip standard.png" class="img-responsive">
+    </div>
+    <div class="col-sm-6">
+        <img src="~/Content/flight back details round trip standard.png" class="img-responsive" />
+    </div>
+</div>
+
+<hr />
+
+<p>
+    In round trip standard flight mode you can specify first flight details and date, skip date, direct
+    flight back fields. Other flight back details inputs will be automatically updated using first flight
+    inputs values. In this mode you can input values the same way you did in the first mode.
+</p>
+
+<hr />
+
+<h3>Round trip non-standard flights</h3>
+
+<hr />
+
+<div class="row">
+    <div class="col-sm-6">
+        <img src="~/Content/flight details round trip non standard.png" class="img-responsive">
+    </div>
+    <div class="col-sm-6">
+        <img src="~/Content/flight back details round trip non standard.png" class="img-responsive" />
+    </div>
+</div>
+
+<hr />
+
+<p>
+    In round trip non-standard flight mode you can specify first flight details and flight back details.
+    This gives you opportunity to choose other return city or diffrent number of passengers.
+    In this mode you can input values the same way you did in the first mode.
+</p>
+
+<hr />
+
+<h3>Form validation</h3>
+
+<hr />
+
+<div class="row">
+    <div class="col-sm-12">
+        <img src="~/Content/flight search validation.png" class="img-responsive">
+    </div>
+</div>
+
+<hr />
+
+<p>
+    If you will put values in wrong format, you will get nottification about it. The input in which values are
+    in incorrect format will have red border and on the right there will be red text with information about what
+    is wrong.
+</p>
+
+<hr />
+
+<h3>Flight Search result</h3>
+
+<hr />
+
+<div class="row">
+    <div class="col-sm-12">
+        <img src="~/Content/flight search result.png" class="img-responsive">
+    </div>
+</div>
+
+<hr />
+
+<p>
+    When you input flight details in a correct format and then click on Search button, you will be
+    redirected to the result page. On this page you will find flight details and flights which our
+    site found. Each flight is presented in card format with information like price, date, flight time
+    airlne logo, flight number. You will also find Check button which redirects you to page where
+    you can find similar flight and buy tickets.
+</p>
+
+<hr />
+
+<h3>Flight Ideas page</h3>
+
+<hr />
+
+<div class="row">
+    <div class="col-sm-12">
+        <img src="~/Content/flight ideas main.png" class="img-responsive">
+    </div>
+</div>
+
+<hr />
+
+<p>
+    On the Flight Ideas page you can find suggestions for flights to popular destinations.
+    If you want to find suggestions only from given city, you can use form at the top of this
+    page. Flights which are found by our site are presented in the same format as at
+    Flight Search result page.
+</p>
+
+<hr />
+
+<h3>Contact page</h3>
+
+<hr />
+
+<p>
+    On the Contact page you can find contact information which you can use to ask us questions, give us
+    reviews or report some issues.
+</p>

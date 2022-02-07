@@ -3,6 +3,7 @@ function setFlightBackInputsReadonly(value, dateValue, directValue) {
     document.getElementById("FlightBackFrom").readOnly = value;
     document.getElementById("FlightBackTo").readOnly = value;
     document.getElementById("FlightBackDate").readOnly = dateValue;
+    document.getElementById("SkipFlightBackDate").disabled = dateValue;
     document.getElementById("FlightBackAdults").readOnly = value;
     document.getElementById("FlightBackChildren").readOnly = value;
     document.getElementById("FlightBackDirect").disabled = directValue;
